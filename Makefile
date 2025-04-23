@@ -21,6 +21,7 @@ SRCS = diffserv.cc \
        packet-number.cc \
        spq.cc \
        drr.cc \
+       cisco-parser.cc \
        diffserv-simulation.cc
 
 # Object files
@@ -44,15 +45,19 @@ $(EXEC): $(OBJS)
 clean:
 	rm -f $(OBJS) $(EXEC)
 
-# Run SPQ simulation
+# Run SPQ simulation with standard configuration
 run-spq: $(EXEC)
 	./$(EXEC) --mode=spq --config=spq.conf
+
+# Run SPQ simulation with Cisco configuration
+run-spq-cisco: $(EXEC)
+	./$(EXEC) --mode=spq --config=cisco-spq.conf --cisco=true
 
 # Run DRR simulation
 run-drr: $(EXEC)
 	./$(EXEC) --mode=drr --config=drr.conf
 
-# Run both simulations
-run-all: run-spq run-drr
+# Run all simulations
+run-all: run-spq run-spq-cisco run-drr
 
-.PHONY: all clean run-spq run-drr run-all
+.PHONY: all clean run-spq run-spq-cisco run-drr run-all

@@ -73,7 +73,8 @@ void SetupSPQValidation (
   std::string configFile,
   ApplicationContainer &apps,
   Ptr<FlowMonitor> &flowMonitor,
-  FlowMonitorHelper &flowHelper
+  FlowMonitorHelper &flowHelper,
+  bool useCiscoConfig = false
 )
 {
   NS_LOG_INFO ("Setting up SPQ validation scenario");
@@ -83,7 +84,18 @@ void SetupSPQValidation (
   
   // Create SPQ queue
   Ptr<SPQ> spq = CreateObject<SPQ> ();
-  spq->SetConfigFile (configFile);
+  
+  // Load configuration based on format
+  if (useCiscoConfig)
+    {
+      NS_LOG_INFO ("Using Cisco configuration format");
+      spq->SetCiscoConfigFile (configFile);
+    }
+  else
+    {
+      NS_LOG_INFO ("Using standard configuration format");
+      spq->SetConfigFile (configFile);
+    }
   
   // Get the NetDevice for the bottleneck link (router to receiver)
   Ptr<NetDevice> dev = router->GetDevice (1);
@@ -326,10 +338,12 @@ int main (int argc, char *argv[])
   // Parse command line arguments
   std::string mode = "spq";
   std::string configFile = "spq.conf";
+  bool useCiscoConfig = false;
   
   CommandLine cmd;
   cmd.AddValue ("mode", "Simulation mode (spq or drr)", mode);
   cmd.AddValue ("config", "Configuration file", configFile);
+  cmd.AddValue ("cisco", "Use Cisco configuration format", useCiscoConfig);
   cmd.Parse (argc, argv);
   
   // Create the basic topology
@@ -348,7 +362,7 @@ int main (int argc, char *argv[])
   
   if (mode == "spq")
     {
-      SetupSPQValidation (nodes, interfaces, configFile, apps, flowMonitor, flowHelper);
+      SetupSPQValidation (nodes, interfaces, configFile, apps, flowMonitor, flowHelper, useCiscoConfig);
     }
   else if (mode == "drr")
     {
