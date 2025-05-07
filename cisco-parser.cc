@@ -120,17 +120,54 @@ CiscoParser::Parse (std::string filename, uint32_t &numQueues, std::vector<uint3
   // Set queue 1 (priority queue) to highest priority (0)
   priorities[0] = 0;
   
-  // Set other queues based on DSCP mapping
-  // This is a simplified approach - in reality, Cisco uses more complex mappings
-  for (std::map<uint32_t, uint32_t>::const_iterator it = m_dscpMap.begin (); it != m_dscpMap.end (); ++it)
+  // If there are dscp-priority mappings, use them
+  if (!m_dscpPriorityMap.empty())
     {
-      uint32_t dscp = it->first;
-      uint32_t queue = it->second;
+      NS_LOG_INFO ("Using DSCP to priority mapping");
       
-      if (queue > 0 && queue < numQueues)
+      // Use the DSCP to priority map to set queue priorities
+      // Note: In Cisco, each DSCP value maps to a specific queue and priority
+      for (uint32_t i = 1; i < numQueues; i++)
         {
-          // Set the priority based on DSCP value (higher DSCP = higher priority)
-          priorities[queue] = std::min (priorities[queue], dscp % 3 + 1);
+          // Find the minimum priority level for this queue
+          uint32_t minPriority = 3; // Default to lowest priority
+          
+          for (std::map<uint32_t, uint32_t>::const_iterator it = m_dscpPriorityMap.begin (); 
+               it != m_dscpPriorityMap.end (); ++it)
+            {
+              uint32_t dscp = it->first;
+              uint32_t priority = it->second;
+              
+              // Map priority to queue (simplified mapping)
+              uint32_t queue = (priority % (numQueues - 1)) + 1; // Ensure queue 0 is not used (reserved for priority queue)
+              
+              if (queue == i && priority < minPriority)
+                {
+                  minPriority = priority;
+                }
+            }
+          
+          // Set the priority for this queue
+          priorities[i] = minPriority;
+        }
+    }
+  else
+    {
+      NS_LOG_INFO ("Using DSCP to queue mapping");
+      
+      // Set other queues based on DSCP mapping
+      // This is a simplified approach - in reality, Cisco uses more complex mappings
+      for (std::map<uint32_t, uint32_t>::const_iterator it = m_dscpMap.begin (); 
+           it != m_dscpMap.end (); ++it)
+        {
+          uint32_t dscp = it->first;
+          uint32_t queue = it->second;
+          
+          if (queue > 0 && queue < numQueues)
+            {
+              // Set the priority based on DSCP value (higher DSCP = higher priority)
+              priorities[queue] = std::min (priorities[queue], dscp % 3 + 1);
+            }
         }
     }
   
@@ -283,11 +320,79 @@ CiscoParser::ParseMlsQosMapCommand (std::vector<std::string> tokens)
       return false;
     }
   
-  if (tokens[2] != "map" || tokens[3] != "dscp-queue")
+  // Check which type of map command it is
+  if (tokens[2] == "map" && tokens[3] == "dscp-queue")
     {
-      NS_LOG_WARN ("Unknown mls qos map command");
+      // Handle dscp-queue mapping (original code)
+      
+      // Find the "to" token
+      size_t toIndex = 0;
+      for (size_t i = 4; i < tokens.size (); i++)
+        {
+          if (tokens[i] == "to")
+            {
+              toIndex = i;
+              break;
+            }
+        }
+      
+      if (toIndex == 0 || toIndex == tokens.size () - 1)
+        {
+          NS_LOG_ERROR ("Invalid mls qos map command: missing 'to' keyword or queue value");
+          return false;
+        }
+      
+      // Parse DSCP values
+      std::vector<uint32_t> dscpValues;
+      for (size_t i = 4; i < toIndex; i++)
+        {
+          std::istringstream iss (tokens[i]);
+          uint32_t dscp;
+          
+          if (!(iss >> dscp) || dscp > 63)
+            {
+              NS_LOG_ERROR ("Invalid DSCP value: " << tokens[i]);
+              return false;
+            }
+          
+          dscpValues.push_back (dscp);
+        }
+      
+      // Parse queue value
+      std::istringstream iss (tokens[toIndex + 1]);
+      uint32_t queue;
+      
+      if (!(iss >> queue) || queue > 3)
+        {
+          NS_LOG_ERROR ("Invalid queue value: " << tokens[toIndex + 1]);
+          return false;
+        }
+      
+      // Map DSCP values to queue
+      for (size_t i = 0; i < dscpValues.size (); i++)
+        {
+          m_dscpMap[dscpValues[i]] = queue;
+          NS_LOG_INFO ("Mapped DSCP " << dscpValues[i] << " to queue " << queue);
+        }
+      
       return true;
     }
+  else if (tokens[2] == "map" && tokens[3] == "dscp-priority")
+    {
+      // Handle dscp-priority mapping - delegating to the new method
+      return ParseMlsQosDscpPriorityCommand(tokens);
+    }
+  else
+    {
+      NS_LOG_WARN ("Unknown mls qos map command: " << tokens[3]);
+      return true; // Ignore unknown commands
+    }
+}
+
+bool
+CiscoParser::ParseMlsQosDscpPriorityCommand (std::vector<std::string> tokens)
+{
+  NS_LOG_FUNCTION (this);
   
   // Find the "to" token
   size_t toIndex = 0;
@@ -302,7 +407,7 @@ CiscoParser::ParseMlsQosMapCommand (std::vector<std::string> tokens)
   
   if (toIndex == 0 || toIndex == tokens.size () - 1)
     {
-      NS_LOG_ERROR ("Invalid mls qos map command: missing 'to' keyword or queue value");
+      NS_LOG_ERROR ("Invalid mls qos map dscp-priority command: missing 'to' keyword or priority value");
       return false;
     }
   
@@ -322,24 +427,25 @@ CiscoParser::ParseMlsQosMapCommand (std::vector<std::string> tokens)
       dscpValues.push_back (dscp);
     }
   
-  // Parse queue value
+  // Parse priority value
   std::istringstream iss (tokens[toIndex + 1]);
-  uint32_t queue;
+  uint32_t priority;
   
-  if (!(iss >> queue) || queue > 3)
+  if (!(iss >> priority))
     {
-      NS_LOG_ERROR ("Invalid queue value: " << tokens[toIndex + 1]);
+      NS_LOG_ERROR ("Invalid priority value: " << tokens[toIndex + 1]);
       return false;
     }
   
-  // Map DSCP values to queue
+  // Map DSCP values to priority level
   for (size_t i = 0; i < dscpValues.size (); i++)
     {
-      m_dscpMap[dscpValues[i]] = queue;
-      NS_LOG_INFO ("Mapped DSCP " << dscpValues[i] << " to queue " << queue);
+      m_dscpPriorityMap[dscpValues[i]] = priority;
+      NS_LOG_INFO ("Mapped DSCP " << dscpValues[i] << " to priority level " << priority);
     }
   
   return true;
+}
 }
 
 std::vector<std::string>

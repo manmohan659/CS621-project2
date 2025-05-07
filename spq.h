@@ -48,6 +48,13 @@ public:
    * \return true if successful, false otherwise
    */
   bool SetConfigFile (std::string filename);
+  
+  /**
+   * \brief Set configuration from Cisco CLI configuration file
+   * \param filename The Cisco CLI configuration file
+   * \return true if successful, false otherwise
+   */
+  bool SetCiscoConfigFile (std::string filename);
 
 protected:
   /**

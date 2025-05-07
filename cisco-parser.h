@@ -98,6 +98,13 @@ private:
   bool ParseMlsQosMapCommand (std::vector<std::string> tokens);
   
   /**
+   * \brief Parse an mls qos map dscp-priority command
+   * \param tokens The command tokens
+   * \return true if successful, false otherwise
+   */
+  bool ParseMlsQosDscpPriorityCommand (std::vector<std::string> tokens);
+  
+  /**
    * \brief Split a string into tokens
    * \param str The string to split
    * \param delimiter The delimiter
@@ -109,7 +116,8 @@ private:
   bool m_priorityQueueEnabled;           //!< Whether priority queue is enabled
   bool m_dscpTrustEnabled;               //!< Whether DSCP trust is enabled
   std::string m_currentInterface;        //!< Current interface
-  std::map<uint32_t, uint32_t> m_dscpMap; //!< DSCP to priority mapping
+  std::map<uint32_t, uint32_t> m_dscpMap; //!< DSCP to queue mapping
+  std::map<uint32_t, uint32_t> m_dscpPriorityMap; //!< DSCP to priority level mapping
 };
 
 } // namespace ns3

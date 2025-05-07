@@ -24,7 +24,7 @@ SPQ::GetTypeId (void)
                    MakeStringAccessor (&SPQ::SetConfigFile),
                    MakeStringChecker ())
     .AddAttribute ("CiscoConfigFile",
-                   "The Cisco configuration file for SPQ",
+                   "The Cisco CLI configuration file for SPQ",
                    StringValue (""),
                    MakeStringAccessor (&SPQ::SetCiscoConfigFile),
                    MakeStringChecker ())
@@ -182,7 +182,5 @@ SPQ::SetCiscoConfigFile (std::string filename)
   
   return true;
 }
-
-} // namespace ns3
 
 } // namespace ns3

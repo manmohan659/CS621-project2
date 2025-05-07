@@ -1,0 +1,162 @@
+﻿CS621 Project 2 FAQs Page
+Change log: Last updated April 24th, 2025
+
+
+1. Can I use the same VM I used in Project 1? 
+
+
+Yes. In fact, you only need one of the two VMs to install, build and run ns-3. Note that if you run into errors with issues regarding not enough disk storage, you probably need to create a new slice as opposed to reconfiguring resources for your existing VM slice. Alternatively, you can install and build ns-3 on your host OS (e.g., MacOS), although there are fewer resources available on how to install ns-3 on non-Linux operating systems.
+
+
+2. How can I create the plot in Project 2 Specification?
+
+
+Ns-3 allows you to create and store pcap files for the packets generated in your simulation. You can capture the packets at the receiving node in your simulation environment, where you can observe the effects of QoS. You can then open the pcap file using Wireshark and use “Wireshark's I/O Graphs Window” (see Project 2 Resources) to plot it. 
+
+
+3. I’ve completed Lab 3 but I don’t know what to do next? Which files in ns-3 should I modify for this project?
+ 
+Learning the interworking of ns-3 and which files you will need to modify is a significant aspect of this project. As the next step, I suggest building upon lab 3 as instructed below (Lab 3.2). Implementing this will help with the process of familiarizing you with the ns-3 components you need to learn for this project.
+ 
+Lab 3.2
+ 
+Modify the current topology in Lab 3 to now include a third node that is placed between the two nodes. Then, incrementally build the following functionalities:
+ 
+1) The node in between is a simple single-queue router. That is, it has two netdevices, one connected to the client and the other to the server. Set the data-rate between the client to the router to 100Mbps and the router to the server to 10Mbps.
+ 
+2) Modify the router (the middle node) so that it has two queues (Q1 and Q2). Implement classify() function that examines all incoming traffic and classifies the packets based on two UDP ports (10000 and 20000) and place them into two different queues. Implement schedule() function that schedules packets to the outgoing link to the server only from Q1 (i.e., Q2 will never be served). Run two instances (one for port 10000 and one for 20000) of an application that generates 10000 UDP packets with ports 10000 and 20000. Run both applications simultaneously.  
+ 
+3) Capture packets at the two netdevices of the router. Examine the two pcap files to confirm that both traffic flows arrived in the router, but only one traffic flow leaves the router. 
+
+
+You can find this ns-3 documentation helpful in implementing this.
+ 
+4) Are there any restrictions on what format the configuration files should be and what content they provide?
+ 
+There are no restrictions on which format to use and what content they provide as long as they include those required in the specification.
+ 
+5) Does each FilterElement logic need to come from the config file or somewhere else? Or can they be hard coded in main so they are input parameters into the classes but passed in at the main function?
+ 
+In this project, the logic for FilterElement may be hardcoded. Ideally, it should come from the config file with ACLs. XML is a popular format in configuring ACLs. The extra credit component of the project is another example of a config file that configures QoS with ACLs.
+ 
+6) For validation pcap files, are we supposed to capture the pre and post pcaps in the same simulation?
+ 
+Yes.
+ 
+7) In SPQ validation:
+Pre_SPQ: This should capture all packets immediately before the SPQ node: Does this mean it should capture pcap file on node0?
+Post_SPQ: This should capture all packets immediately after the SPQ node: Does this mean it should capture pcap file on node2?
+ 
+Not necessarily. They could be captured in the NetDevices connecting node0-node1, and node1-node2, hence both are captured in node1.
+ 
+8) For validation of simulated SPQ and DRR, should I use UDP traffic or TCP?
+ 
+Using UDP traffic demonstrates the throughput ratio more clearly as opposed to TCP senders which reduce their sending rates in adverse environments.
+ 
+9) Is there specific advice on how to implement DRR?
+ 
+Yes. Your implementation should exactly follow the pseudocode provided Figure 4 of this paper.
+10) Can we use protected for member variables that are marked private in the UML diagram?
+It depends on the member variable and the rationale behind this design decision. The general answer to this question is yes; for any “minor” changes to the UML design, you must present a strong reason during the presentation and a detailed explanation in your final report.
+11) Can we add more private methods to the classes beyond what is in the UML diagram?
+Yes.
+12) Can you provide an example on how to interpret priority_level in TrafficClass? How does a scheduler work in the presence of more than two queues?
+Assume we have three different queues with different priority levels. Let’s (arbitrarily) interpret priority_level as larger numbers representing higher priority levels, and assign the following numbers as the priority_level of each TrafficClass: 7, 3, and 1. The scheduler will only pull from the queue with priority_level 7, and when this queue is empty, the scheduler will schedule packets from the queue with priority_level 3. Packets in the queue with priority_level 1 will only be served when all higher-level queues are empty.
+13) What is the "bool isDefault" attribute for?
+ 
+When there are multiple queues, typically there is one queue that serves as the default queue (wildcard). A packet that doesn't match any of the specified criteria will be placed in this queue. 
+There should always be (and you can assume) no more than one default queue (i.e., a queue with isDefault == true). If isDefault is == false for all queues, a packet that doesn’t match any of TrafficClass should be discarded. 
+ 
+This is ultimately the choice of the net admin to decide which queue is set to default. In the case of SPQ, a queue with the lowest priority is typically set to default, although that is not always the case and can vary based on the network’s requirements and net admin’s objective and design. For instance, if there were two internal queues, Q1 and Q2, Q1 having a higher priority level and Q2 having a lower priority level, typically Q2 serves as the default queue.
+
+
+14) Can we use "AddPacketTag()" in this project? I want to specifically use it for the router to determine which TrafficClass (Queue) to enqueue the incoming packet. 
+ 
+Using tags is okay in most cases but it depends on the intended functionality. For this specific reason, the answer is no. Using tags won't be properly simulating a real Classify() since it should be looking at the packet header instead.
+
+
+15) Concerning the FilterElement subclass Ipv4Mask: The UML diagram shows one attribute, Ipv4Mask value. An Ipv4Mask is only the mask portion, the "x" part of a.b.c.d/x. Given how a Filter checks matches on its FilterElements independently, this wouldn't provide a meaningful match (how would you match a mask against an address?)
+
+
+You can modify relevant FilterElement subclass design to enable comparing Ipv4Mask against source and destination IP addresses. Note that any modification to the FilterElement class to facilitate Ipv4Mask is not permitted.
+ 
+16) Are we restricted to follow the provided UML design as presented or are we allowed to make changes to it?
+ 
+Proposed revisions to the design are allowed if they improve the DiffServ class design for its intended objective: introducing abstraction (through modularization) to facilitate implementation of any QoS mechanism in ns-3. What is discouraged is to modify the design for Project 2 implementation at the expense of loss of abstraction. All changes to the design and the respective supporting arguments must be briefly included in the project presentation and documented in detail in the final report.
+
+
+17) Can you provide some hints on how to implement a scheduler with multiple queues in ns-3?
+
+
+Understanding how to implement this project in ns-3 is part of the project. In fact, it is a major milestone for this project. Having said that, here I am providing some pointers regarding how it may be implemented:
+
+
+TrafficClass has a queue with methods a standard queue has such as enqueue, peek, dequeue, isEmpty, etc. By instantiating several instances of TrafficClass (and assigning them to q_class vector), you now have multiple queues. You will then need a classifier that, given an arriving packet p, checks against match() for all TrafficClass objects to determine which q_class[i] should call Enqueue(p).
+
+
+Whenever Schedule() is called, it returns a packet (or nullptr, if all queues are empty). Schedule() has access to all q_classes and should behave exactly as the QoS mechanism is expected to behave. Once Schedule determines which q_class[i] should be served, it returns q_class[i]->Dequeue() or q_class[i]->Peek(), depending on your implementation.
+
+
+18) For the DiffServ class what do we return in classify and schedule? The UML design only specified the return type. I'm wondering why it needs to be uint32_t.
+
+
+The return values can be interpreted however you wish based on your design/implementation requirements, including not using them at all. However, in some implementations the return value can be the index for q_class.
+
+
+
+
+19) How is the weight member variable in DiffServ used in DRR implementation?
+ 
+DRR is practically a weight-based QoS, as the respective quantum for each TrafficClass can vary to essentially introduce weights. Therefore, the value stored in weight can be the quantum associated with the TrafficClass in bytes.
+ 
+20) According to the pseudocode given for DRR implementation in the paper, there is an infinite loop running inside Dequeue logic. Are we supposed to tweak it a little for our implementation?
+
+
+Small tweaks in implementation are fine, if implemented with care. Remember the pseudocode in the paper is what has been verified by the authors and reviewed by several reviewers for publication. So, you should try to implement DRR as closely as possible to the presented pseudocode.
+
+
+21) What is the difference between DoRemove() and DoDequeue()? It seems all of them pop the next scheduled packet.
+
+
+You can see the implementation for both functions in
+https://www.nsnam.org/docs/release/3.38/doxygen/d8/d38/queue_8h_source.html
+
+
+22) Are there any resources on how to add external libraries (e.g., an XML parser for the config file) to ns-3?
+
+
+You may refer to these threads regarding how to add external libraries to ns-3 and possible issues you may encounter.
+
+
+23) What ns-3 application can I use to generate traffic to validate my SPQ and DRR implementation?
+
+
+You can use any application (including your own) that generates a reasonably steady traffic that is sufficiently large volume (preferably UDP) and sufficiently persistent for a long period of time so that it enables validating your QoS mechanisms. UdpClient/ServerHelper in ns-3 is one candidate that meets this criteria. 
+
+
+24) Can I call Schedule in DoDequeue or Classify in DoEnqueue?
+
+
+Yes.
+
+
+25) Can I make Schedule not a virtual method?
+
+
+No. 
+
+
+
+
+
+
+26) What do Remove and Peek do?
+
+
+Remove removes the packet from the front of the queue that Schedule serves next and returns it (similar to Dequeue). Peek returns a copy of the packet from the front for the queue that Schedule would serve next without removing the packet from the queue. Or, you may modify Peek’s signature to take a TrafficClass or queue index as an argument, which in that case would return a copy of the front of that specific queue.
+
+
+27) Should Pre_DRR.pcap show the exact 123123123… pattern?
+
+
+No, it doesn’t have to be exact and it should only approximately produce that pattern. You can use any traffic generation application in ns-3 (e.g., UdpClient/Server), and run three instances of it starting at the same time and that would be sufficient in producing this pattern.
