@@ -47,7 +47,7 @@ clean:
 	rm -f $(OBJS) $(EXEC)
 
 # convenience runners
-run-spq:         $(EXEC) ; ./$(EXEC) --mode=spq        --config=spq.conf
-run-spq-cisco:   $(EXEC) ; ./$(EXEC) --mode=spq        --config=cisco-spq.conf --cisco=true
+run-spq:         $(EXEC) ; ./$(EXEC) --mode=spq        --config=spq.config
+run-spq-cisco:   $(EXEC) ; ./$(EXEC) --mode=spq        --config=cisco-spq.config --cisco=true
 run-drr:         $(EXEC) ; ./$(EXEC) --mode=drr        --config=drr.config
 run-all: run-spq run-spq-cisco run-drr

@@ -199,6 +199,86 @@ void SetupSPQValidation(
   flowMonitorInstance = localFlowHelper.InstallAll();
 }
 
+void SetupSPQValidationFromCisco(NodeContainer& nodes,
+                                 Ipv4InterfaceContainer& sinkNodeInterface,
+                                 const std::string& ciscoConfigFile,
+                                 ApplicationContainer& apps,
+                                 Ptr<FlowMonitor>& flowMonitorInstance,
+                                 FlowMonitorHelper& localFlowHelper)
+{
+  NS_LOG_INFO("Setting up SPQ validation scenario using Cisco config");
+
+  g_appBPort_SPQ = portBase;
+  g_appAPort_SPQ = portBase + 1;
+
+  Ptr<Node> router = nodes.Get(1);
+  Ptr<SPQ> spq = CreateObject<SPQ>();
+
+  NS_ASSERT_MSG(!ciscoConfigFile.empty(),
+                "Cisco config file must be provided.");
+  spq->SetCiscoConfigFile(ciscoConfigFile);
+
+  NS_ASSERT_MSG(
+      spq->GetNTrafficClasses() >= 2,
+      "SPQ Cisco config did not create at least 2 queues for validation.");
+
+  Ptr<TrafficClass> highPriorityClass =
+      spq->GetTrafficClass(0); // Highest priority
+  NS_ASSERT_MSG(highPriorityClass,
+                "Could not get high priority traffic class (index 0).");
+  Ptr<Filter> highFilter = CreateObject<Filter>();
+  highFilter->AddFilterElement(CreateObject<DestPortFilter>(g_appAPort_SPQ));
+  highPriorityClass->AddFilter(highFilter);
+
+  Ptr<TrafficClass> lowPriorityClass =
+      spq->GetTrafficClass(1); // Lower priority
+  NS_ASSERT_MSG(lowPriorityClass,
+                "Could not get low priority traffic class (index 1).");
+  Ptr<Filter> lowFilter = CreateObject<Filter>();
+  lowFilter->AddFilterElement(CreateObject<DestPortFilter>(g_appBPort_SPQ));
+  lowPriorityClass->AddFilter(lowFilter);
+
+  Ptr<NetDevice> routerEgressDev = router->GetDevice(1);
+  routerEgressDev->SetAttribute("TxQueue", PointerValue(spq));
+
+  BulkSendHelper sourceB(
+      "ns3::TcpSocketFactory",
+      InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appBPort_SPQ));
+  sourceB.SetAttribute("MaxBytes", UintegerValue(0));
+  ApplicationContainer sourceAppB = sourceB.Install(nodes.Get(0));
+  sourceAppB.Start(Seconds(0.0));
+  sourceAppB.Stop(Seconds(g_simDuration));
+
+  BulkSendHelper sourceA(
+      "ns3::TcpSocketFactory",
+      InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appAPort_SPQ));
+  sourceA.SetAttribute("MaxBytes", UintegerValue(0));
+  ApplicationContainer sourceAppA = sourceA.Install(nodes.Get(0));
+  sourceAppA.Start(Seconds(12.0));
+  sourceAppA.Stop(Seconds(20.0));
+
+  PacketSinkHelper sinkB(
+      "ns3::TcpSocketFactory",
+      InetSocketAddress(Ipv4Address::GetAny(), g_appBPort_SPQ));
+  ApplicationContainer sinkAppB = sinkB.Install(nodes.Get(2));
+  sinkAppB.Start(Seconds(0.0));
+  sinkAppB.Stop(Seconds(g_simDuration));
+
+  PacketSinkHelper sinkA(
+      "ns3::TcpSocketFactory",
+      InetSocketAddress(Ipv4Address::GetAny(), g_appAPort_SPQ));
+  ApplicationContainer sinkAppA = sinkA.Install(nodes.Get(2));
+  sinkAppA.Start(Seconds(0.0));
+  sinkAppA.Stop(Seconds(g_simDuration));
+
+  apps.Add(sourceAppA);
+  apps.Add(sourceAppB);
+  apps.Add(sinkAppA);
+  apps.Add(sinkAppB);
+
+  flowMonitorInstance = localFlowHelper.InstallAll();
+}
+
 void SetupDRRValidation(
     NodeContainer& nodes, Ipv4InterfaceContainer& sinkNodeInterface,
     std::string configFile, ApplicationContainer& apps,
