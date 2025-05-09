@@ -135,7 +135,6 @@ CiscoParser::Parse (std::string filename, uint32_t &numQueues, std::vector<uint3
           for (std::map<uint32_t, uint32_t>::const_iterator it = m_dscpPriorityMap.begin (); 
                it != m_dscpPriorityMap.end (); ++it)
             {
-              uint32_t dscp = it->first;
               uint32_t priority = it->second;
               
               // Map priority to queue (simplified mapping)
@@ -446,7 +445,6 @@ CiscoParser::ParseMlsQosDscpPriorityCommand (std::vector<std::string> tokens)
   
   return true;
 }
-}
 
 std::vector<std::string>
 CiscoParser::Split (std::string str, char delimiter)
@@ -465,3 +463,5 @@ CiscoParser::Split (std::string str, char delimiter)
   
   return tokens;
 }
+
+} // namespace ns3

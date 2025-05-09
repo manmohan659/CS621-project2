@@ -17,7 +17,6 @@ DiffServ::GetTypeId (void)
   static TypeId tid = TypeId ("ns3::DiffServ")
     .SetParent<Queue<Packet> > ()
     .SetGroupName ("Network")
-    .AddConstructor<DiffServ> ()
     .AddAttribute ("MaxSize",
                    "The maximum number of packets accepted by this DiffServ queue.",
                    QueueSizeValue (QueueSize ("100p")),
@@ -201,5 +200,35 @@ DiffServ::GetNTrafficClasses (void) const
   NS_LOG_FUNCTION (this);
   return m_classes.size ();
 }
+
+bool
+DiffServ::Enqueue (Ptr<Packet> p)
+{
+  NS_LOG_FUNCTION (this << p);
+  return DoEnqueue(p);
+}
+
+Ptr<Packet>
+DiffServ::Dequeue (void)
+{
+  NS_LOG_FUNCTION (this);
+  return DoDequeue();
+}
+
+Ptr<Packet>
+DiffServ::Remove (void)
+{
+  NS_LOG_FUNCTION (this);
+  return Schedule();
+}
+
+Ptr<const Packet>
+DiffServ::Peek (void) const
+{
+  NS_LOG_FUNCTION (this);
+  return DoPeek();
+}
+
+
 
 } // namespace ns3

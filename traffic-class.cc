@@ -39,7 +39,7 @@ TrafficClass::GetTypeId (void)
 
 TrafficClass::TrafficClass () :
   m_filters (),
-  m_mode (Queue<Packet>::QUEUE_MODE_PACKETS),
+  m_mode (0), // Packet mode (was QUEUE_MODE_PACKETS)
   m_packets (0),
   m_maxPackets (100),
   m_weight (1.0),

@@ -1,10 +1,12 @@
 // spq.cc
 #include "spq.h"
 #include "traffic-class.h"
+#include "cisco-parser.h"
 #include "ns3/log.h"
 #include "ns3/string.h"
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 namespace ns3 {
 
@@ -18,22 +20,14 @@ SPQ::GetTypeId (void)
     .SetParent<DiffServ> ()
     .SetGroupName ("Network")
     .AddConstructor<SPQ> ()
-    .AddAttribute ("ConfigFile",
-                   "The configuration file for SPQ",
-                   StringValue (""),
-                   MakeStringAccessor (&SPQ::SetConfigFile),
-                   MakeStringChecker ())
-    .AddAttribute ("CiscoConfigFile",
-                   "The Cisco CLI configuration file for SPQ",
-                   StringValue (""),
-                   MakeStringAccessor (&SPQ::SetCiscoConfigFile),
-                   MakeStringChecker ())
   ;
   return tid;
 }
 
 SPQ::SPQ () :
-  DiffServ ()
+  DiffServ (),
+  m_configFile (""),
+  m_ciscoConfigFile ("")
 {
   NS_LOG_FUNCTION (this);
 }
@@ -48,6 +42,20 @@ SPQ::DoDispose (void)
 {
   NS_LOG_FUNCTION (this);
   DiffServ::DoDispose ();
+}
+
+std::string
+SPQ::GetConfigFile (void) const
+{
+  NS_LOG_FUNCTION (this);
+  return m_configFile;
+}
+
+std::string
+SPQ::GetCiscoConfigFile (void) const
+{
+  NS_LOG_FUNCTION (this);
+  return m_ciscoConfigFile;
 }
 
 Ptr<Packet>
@@ -91,6 +99,7 @@ bool
 SPQ::SetConfigFile (std::string filename)
 {
   NS_LOG_FUNCTION (this << filename);
+  m_configFile = filename;
   
   std::ifstream file (filename.c_str ());
   if (!file.is_open ())
@@ -154,6 +163,7 @@ bool
 SPQ::SetCiscoConfigFile (std::string filename)
 {
   NS_LOG_FUNCTION (this << filename);
+  m_ciscoConfigFile = filename;
   
   // Create the parser
   Ptr<CiscoParser> parser = CreateObject<CiscoParser> ();

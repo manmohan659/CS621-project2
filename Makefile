@@ -1,44 +1,44 @@
-# Makefile for CS621 Project2 DiffServ in ns-3 on macOS
+# ─────────  CS621 Project-2  (DiffServ)  ─────────
+# Works with ns-3.35 built in *debug* profile
+#   If you rebuild ns-3 with --build-profile=release
+#   just change NS3_SUFFIX = -optimized and re-make.
 
-NS3_DIR     := $(HOME)/ns-3-dev
-NS3_VERSION := 3.44
+# ─── ns-3 locations ──────────────────────────────
+NS3_DIR      := $(HOME)/Documents/ns-allinone-3.35/ns-3.35
+NS3_LIB_DIR  := $(NS3_DIR)/build/lib
+NS3_INC_DIR  := $(NS3_DIR)/build/include
+NS3_VERSION  := 35
+NS3_SUFFIX   := -debug          # ← use -optimized for release libs
 
-SDK_PATH    := $(shell xcrun --show-sdk-path)
-CXX         := clang++
-STD_LIB     := -stdlib=libc++
+# ─── toolchain opts ──────────────────────────────
+CXX          := g++
+CXXFLAGS     := -std=c++17 -g -Wall -I$(NS3_INC_DIR) -I$(NS3_DIR)/build
+LDFLAGS      := -L$(NS3_LIB_DIR) -Wl,-rpath,$(NS3_LIB_DIR)
 
-CXXFLAGS    := -std=c++17 -g -Wall \
-               -isysroot $(SDK_PATH) $(STD_LIB) \
-               -I$(SDK_PATH)/usr/include \
-               -isystem $(NS3_DIR)/build/include \
-               -isystem $(NS3_DIR)/build/include/ns3
+# ─── ns-3 libs to link ───────────────────────────
+NS3_LIBS :=  -lns3.$(NS3_VERSION)-core$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-network$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-internet$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-point-to-point$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-applications$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-traffic-control$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-flow-monitor$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-stats$(NS3_SUFFIX)          # ← NEW
 
-LDFLAGS     := -isysroot $(SDK_PATH) $(STD_LIB) \
-               -L$(NS3_DIR)/build/lib
+# ─── project sources ─────────────────────────────
+SRCS  := diffserv.cc traffic-class.cc filter.cc filter-element.cc \
+         source-ip-address.cc dest-ip-address.cc spq.cc drr.cc \
+         cisco-parser.cc diffserv-simulation.cc
+OBJS  := $(SRCS:.cc=.o)
+EXEC  := diffserv-simulation
 
-NS3_LIBS    := -lns3.$(NS3_VERSION)-core \
-               -lns3.$(NS3_VERSION)-network \
-               -lns3.$(NS3_VERSION)-internet \
-               -lns3.$(NS3_VERSION)-point-to-point \
-               -lns3.$(NS3_VERSION)-applications \
-               -lns3.$(NS3_VERSION)-traffic-control \
-               -lns3.$(NS3_VERSION)-flow-monitor
-
-SRCS        := diffserv.cc traffic-class.cc filter.cc filter-element.cc \
-               source-ip-address.cc dest-ip-address.cc source-port.cc \
-               dest-port.cc protocol-number.cc tos-field.cc \
-               packet-number.cc spq.cc drr.cc cisco-parser.cc \
-               diffserv-simulation.cc
-
-OBJS        := $(SRCS:.cc=.o)
-EXEC        := diffserv-simulation
-
+# ─── rules ───────────────────────────────────────
 .PHONY: all clean run-spq run-spq-cisco run-drr run-all
 
 all: $(EXEC)
 
 $(EXEC): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(LDFLAGS) $(NS3_LIBS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(NS3_LIBS)
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -46,13 +46,8 @@ $(EXEC): $(OBJS)
 clean:
 	rm -f $(OBJS) $(EXEC)
 
-run-spq: $(EXEC)
-	./$(EXEC) --mode=spq --config=spq.conf
-
-run-spq-cisco: $(EXEC)
-	./$(EXEC) --mode=spq --config=cisco-spq.conf --cisco=true
-
-run-drr: $(EXEC)
-	./$(EXEC) --mode=drr --config=drr.conf
-
+# convenience runners
+run-spq:         $(EXEC) ; ./$(EXEC) --mode=spq        --config=spq.conf
+run-spq-cisco:   $(EXEC) ; ./$(EXEC) --mode=spq        --config=cisco-spq.conf --cisco=true
+run-drr:         $(EXEC) ; ./$(EXEC) --mode=drr        --config=drr.config
 run-all: run-spq run-spq-cisco run-drr

@@ -8,7 +8,6 @@
 #include "ns3/object.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/traced-value.h"
-#include "ns3/trace-source.h"
 #include <vector>
 
 namespace ns3 {
@@ -67,6 +66,11 @@ public:
    */
   Ptr<TrafficClass> GetTrafficClass (uint32_t index) const;
   
+  // Required by Queue<Packet> - must be public and override base class
+  virtual bool Enqueue (Ptr<Packet> p) override;
+  virtual Ptr<Packet> Dequeue (void) override;
+  virtual Ptr<Packet> Remove (void) override;
+  virtual Ptr<const Packet> Peek (void) const override;
   /**
    * \brief Get the number of traffic classes
    * \return The number of traffic classes

@@ -6,6 +6,7 @@
 #include "ns3/object.h"
 #include "ns3/queue.h"
 #include <vector>
+#include <queue>
 
 namespace ns3 {
 
@@ -124,7 +125,7 @@ protected:
 
 private:
   std::vector<Ptr<Filter> > m_filters; //!< Vector of filters
-  Queue<Packet>::QueueMode m_mode;    //!< Queue mode (FIFO, etc.)
+  uint32_t m_mode;                    //!< Queue mode (FIFO, etc.)
   uint32_t m_packets;                 //!< Current number of packets
   uint32_t m_maxPackets;              //!< Maximum number of packets
   double m_weight;                    //!< Weight (for WFQ, DRR, etc.)
