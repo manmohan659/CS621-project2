@@ -25,7 +25,6 @@ public:
   {
   }
 
-  // match the base class exactly:
   bool Match(Ptr<Packet> p) override
   {
     Ptr<Packet> c = p->Copy();
@@ -42,5 +41,5 @@ private:
   uint16_t m_port;
 };
 
-} // namespace ns3
+}
 #endif

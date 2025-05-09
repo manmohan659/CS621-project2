@@ -1,4 +1,3 @@
-// filter.cc
 #include "filter.h"
 #include "filter-element.h"
 #include "ns3/log.h"
@@ -32,7 +31,6 @@ void Filter::DoDispose(void)
 {
   NS_LOG_FUNCTION(this);
 
-  // Clear the filter elements
   m_elements.clear();
 
   Object::DoDispose();
@@ -48,14 +46,12 @@ bool Filter::Match(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
 
-  // If no filter elements, always match
   if (m_elements.empty())
   {
     NS_LOG_LOGIC("No filter elements, default match");
     return true;
   }
 
-  // Check if the packet matches all filter elements
   for (uint32_t i = 0; i < m_elements.size(); i++)
   {
     if (!m_elements[i]->Match(p))
@@ -69,4 +65,4 @@ bool Filter::Match(Ptr<Packet> p)
   return true;
 }
 
-} // namespace ns3
+}

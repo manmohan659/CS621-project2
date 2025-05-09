@@ -1,4 +1,3 @@
-// source-ip-address.h
 #ifndef SOURCE_IP_ADDRESS_H
 #define SOURCE_IP_ADDRESS_H
 
@@ -56,7 +55,7 @@ public:
   Ipv4Address GetAddress(void) const;
 
 private:
-  Ipv4Address m_address; //!< The source IP address to match
+  Ipv4Address m_address;
 
   /**
    * \brief Dispose of the object
@@ -64,6 +63,6 @@ private:
   virtual void DoDispose(void);
 };
 
-} // namespace ns3
+}
 
-#endif /* SOURCE_IP_ADDRESS_H */
+#endif

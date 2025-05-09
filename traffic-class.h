@@ -1,4 +1,3 @@
-// traffic-class.h
 #ifndef TRAFFIC_CLASS_H
 #define TRAFFIC_CLASS_H
 
@@ -15,9 +14,6 @@ class Filter;
 
 /**
  * \brief Traffic class for differentiated services
- *
- * This class represents a traffic class in DiffServ architecture.
- * It contains a queue of packets and filters for classification.
  */
 class TrafficClass : public Object
 {
@@ -125,15 +121,15 @@ protected:
   virtual void DoDispose(void);
 
 private:
-  std::vector<Ptr<Filter>> m_filters; //!< Vector of filters
-  uint32_t m_mode;                    //!< Queue mode (FIFO, etc.)
-  uint32_t m_packets;                 //!< Current number of packets
-  uint32_t m_maxPackets;              //!< Maximum number of packets
-  double m_weight;                    //!< Weight (for WFQ, DRR, etc.)
-  uint32_t m_priorityLevel;           //!< Priority level (for SPQ)
-  std::queue<Ptr<Packet>> m_queue;    //!< Internal packet queue
+  std::vector<Ptr<Filter>> m_filters;
+  uint32_t m_mode;
+  uint32_t m_packets;
+  uint32_t m_maxPackets;
+  double m_weight;
+  uint32_t m_priorityLevel;
+  std::queue<Ptr<Packet>> m_queue;
 };
 
-} // namespace ns3
+}
 
-#endif /* TRAFFIC_CLASS_H */
+#endif

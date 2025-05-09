@@ -1,4 +1,3 @@
-// diffserv.h
 #ifndef DIFFSERV_H
 #define DIFFSERV_H
 
@@ -18,10 +17,6 @@ class TrafficClass;
 /**
  * \ingroup queue
  * \brief A DiffServ queue
- *
- * This class implements a Differentiated Services queue used for QoS
- * mechanisms. It inherits from Queue base class and provides core
- * functionalities for packet classification and scheduling.
  */
 class DiffServ : public Queue<Packet>
 {
@@ -68,7 +63,6 @@ public:
    */
   Ptr<TrafficClass> GetTrafficClass(uint32_t index) const;
 
-  // Required by Queue<Packet> - must be public and override base class
   virtual bool Enqueue(Ptr<Packet> p) override;
   virtual Ptr<Packet> Dequeue(void) override;
   virtual Ptr<Packet> Remove(void) override;
@@ -109,9 +103,9 @@ protected:
    */
   virtual bool IsEmpty(void) const;
 
-  std::vector<Ptr<TrafficClass>> m_classes; //!< Vector of traffic classes
+  std::vector<Ptr<TrafficClass>> m_classes;
 };
 
-} // namespace ns3
+}
 
-#endif /* DIFFSERV_H */
+#endif

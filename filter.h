@@ -1,4 +1,3 @@
-// filter.h
 #ifndef FILTER_H
 #define FILTER_H
 
@@ -13,10 +12,6 @@ class FilterElement;
 
 /**
  * \brief Filter for packet classification
- *
- * This class represents a filter in DiffServ architecture.
- * It contains a collection of FilterElement conditions.
- * A packet matches a filter only if all FilterElement conditions are satisfied.
  */
 class Filter : public Object
 {
@@ -57,9 +52,9 @@ protected:
   virtual void DoDispose(void);
 
 private:
-  std::vector<Ptr<FilterElement>> m_elements; //!< Vector of filter elements
+  std::vector<Ptr<FilterElement>> m_elements;
 };
 
-} // namespace ns3
+}
 
-#endif /* FILTER_H */
+#endif

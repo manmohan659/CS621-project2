@@ -1,4 +1,3 @@
-// cisco-parser.h
 #ifndef CISCO_PARSER_H
 #define CISCO_PARSER_H
 
@@ -12,32 +11,12 @@ namespace ns3
 
 /**
  * \brief Parser for Cisco 3750 CLI commands for SPQ configuration
- *
- * This class parses Cisco 3750 CLI commands to configure SPQ.
- * It supports the following commands:
- * - mls qos
- * - interface <interface_name>
- * - priority-queue out
- * - mls qos trust dscp
- * - mls qos map dscp-priority <dscp_values> to <priority_level>
  */
 class CiscoParser : public Object
 {
 public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
   static TypeId GetTypeId(void);
-
-  /**
-   * \brief Constructor
-   */
   CiscoParser();
-
-  /**
-   * \brief Destructor
-   */
   virtual ~CiscoParser();
 
   /**
@@ -114,15 +93,15 @@ private:
    */
   std::vector<std::string> Split(std::string str, char delimiter);
 
-  bool m_qosEnabled;                      //!< Whether QoS is enabled
-  bool m_priorityQueueEnabled;            //!< Whether priority queue is enabled
-  bool m_dscpTrustEnabled;                //!< Whether DSCP trust is enabled
-  std::string m_currentInterface;         //!< Current interface
-  std::map<uint32_t, uint32_t> m_dscpMap; //!< DSCP to queue mapping
+  bool m_qosEnabled;
+  bool m_priorityQueueEnabled;
+  bool m_dscpTrustEnabled;
+  std::string m_currentInterface;
+  std::map<uint32_t, uint32_t> m_dscpMap;
   std::map<uint32_t, uint32_t>
-      m_dscpPriorityMap; //!< DSCP to priority level mapping
+      m_dscpPriorityMap;
 };
 
-} // namespace ns3
+}
 
-#endif /* CISCO_PARSER_H */
+#endif

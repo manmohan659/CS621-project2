@@ -1,4 +1,3 @@
-// filter-element.h
 #ifndef FILTER_ELEMENT_H
 #define FILTER_ELEMENT_H
 
@@ -11,9 +10,6 @@ namespace ns3
 /**
  * \ingroup diffserv
  * \brief Base class for filter elements
- *
- * This class defines the interface for filter elements
- * used in DiffServ packet classification.
  */
 class FilterElement : public Object
 {
@@ -48,6 +44,6 @@ protected:
   virtual void DoDispose(void);
 };
 
-} // namespace ns3
+}
 
-#endif /* FILTER_ELEMENT_H */
+#endif

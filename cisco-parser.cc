@@ -1,4 +1,3 @@
-// cisco-parser.cc
 #include "cisco-parser.h"
 #include "ns3/log.h"
 #include <algorithm>
@@ -52,20 +51,16 @@ bool CiscoParser::Parse(std::string filename, uint32_t& numQueues,
 
   std::string line;
 
-  // Parse each line
   while (std::getline(file, line))
   {
-    // Skip empty lines and comments
     if (line.empty() || line[0] == '#' || line[0] == '!')
     {
       continue;
     }
 
-    // Remove leading and trailing whitespace
     line.erase(0, line.find_first_not_of(" \t"));
     line.erase(line.find_last_not_of(" \t") + 1);
 
-    // Parse the line
     if (!ParseLine(line))
     {
       NS_LOG_ERROR("Failed to parse line: " << line);
@@ -76,7 +71,6 @@ bool CiscoParser::Parse(std::string filename, uint32_t& numQueues,
 
   file.close();
 
-  // Check if the configuration is valid
   if (!m_qosEnabled)
   {
     NS_LOG_ERROR("QoS is not enabled");
@@ -101,31 +95,22 @@ bool CiscoParser::Parse(std::string filename, uint32_t& numQueues,
     return false;
   }
 
-  // Determine the number of queues and their priorities
   numQueues = 0;
   priorities.clear();
 
-  // In Cisco 3750, there are 4 output queues (numbered 1-4)
-  // The priority queue is queue 1, and the other queues are used for WRR
   numQueues = 4;
 
-  // Initialize priorities (0 = highest, 3 = lowest)
   priorities.resize(numQueues, 3);
 
-  // Set queue 1 (priority queue) to highest priority (0)
   priorities[0] = 0;
 
-  // If there are dscp-priority mappings, use them
   if (!m_dscpPriorityMap.empty())
   {
     NS_LOG_INFO("Using DSCP to priority mapping");
 
-    // Use the DSCP to priority map to set queue priorities
-    // Note: In Cisco, each DSCP value maps to a specific queue and priority
     for (uint32_t i = 1; i < numQueues; i++)
     {
-      // Find the minimum priority level for this queue
-      uint32_t minPriority = 3; // Default to lowest priority
+      uint32_t minPriority = 3;
 
       for (std::map<uint32_t, uint32_t>::const_iterator it =
                m_dscpPriorityMap.begin();
@@ -133,10 +118,9 @@ bool CiscoParser::Parse(std::string filename, uint32_t& numQueues,
       {
         uint32_t priority = it->second;
 
-        // Map priority to queue (simplified mapping)
         uint32_t queue =
             (priority % (numQueues - 1)) +
-            1; // Ensure queue 0 is not used (reserved for priority queue)
+            1;
 
         if (queue == i && priority < minPriority)
         {
@@ -144,7 +128,6 @@ bool CiscoParser::Parse(std::string filename, uint32_t& numQueues,
         }
       }
 
-      // Set the priority for this queue
       priorities[i] = minPriority;
     }
   }
@@ -152,9 +135,6 @@ bool CiscoParser::Parse(std::string filename, uint32_t& numQueues,
   {
     NS_LOG_INFO("Using DSCP to queue mapping");
 
-    // Set other queues based on DSCP mapping
-    // This is a simplified approach - in reality, Cisco uses more complex
-    // mappings
     for (std::map<uint32_t, uint32_t>::const_iterator it = m_dscpMap.begin();
          it != m_dscpMap.end(); ++it)
     {
@@ -163,7 +143,6 @@ bool CiscoParser::Parse(std::string filename, uint32_t& numQueues,
 
       if (queue > 0 && queue < numQueues)
       {
-        // Set the priority based on DSCP value (higher DSCP = higher priority)
         priorities[queue] = std::min(priorities[queue], dscp % 3 + 1);
       }
     }
@@ -182,15 +161,13 @@ bool CiscoParser::ParseLine(std::string line)
 {
   NS_LOG_FUNCTION(this << line);
 
-  // Split the line into tokens
   std::vector<std::string> tokens = Split(line, ' ');
 
   if (tokens.empty())
   {
-    return true; // Skip empty lines
+    return true;
   }
 
-  // Parse based on the first token
   if (tokens[0] == "interface")
   {
     return ParseInterfaceCommand(tokens);
@@ -219,7 +196,7 @@ bool CiscoParser::ParseLine(std::string line)
   }
 
   NS_LOG_WARN("Unknown command: " << line);
-  return true; // Ignore unknown commands
+  return true;
 }
 
 bool CiscoParser::ParseInterfaceCommand(std::vector<std::string> tokens)
@@ -312,12 +289,9 @@ bool CiscoParser::ParseMlsQosMapCommand(std::vector<std::string> tokens)
     return false;
   }
 
-  // Check which type of map command it is
   if (tokens[2] == "map" && tokens[3] == "dscp-queue")
   {
-    // Handle dscp-queue mapping (original code)
 
-    // Find the "to" token
     size_t toIndex = 0;
     for (size_t i = 4; i < tokens.size(); i++)
     {
@@ -335,7 +309,6 @@ bool CiscoParser::ParseMlsQosMapCommand(std::vector<std::string> tokens)
       return false;
     }
 
-    // Parse DSCP values
     std::vector<uint32_t> dscpValues;
     for (size_t i = 4; i < toIndex; i++)
     {
@@ -351,7 +324,6 @@ bool CiscoParser::ParseMlsQosMapCommand(std::vector<std::string> tokens)
       dscpValues.push_back(dscp);
     }
 
-    // Parse queue value
     std::istringstream iss(tokens[toIndex + 1]);
     uint32_t queue;
 
@@ -361,7 +333,6 @@ bool CiscoParser::ParseMlsQosMapCommand(std::vector<std::string> tokens)
       return false;
     }
 
-    // Map DSCP values to queue
     for (size_t i = 0; i < dscpValues.size(); i++)
     {
       m_dscpMap[dscpValues[i]] = queue;
@@ -372,13 +343,12 @@ bool CiscoParser::ParseMlsQosMapCommand(std::vector<std::string> tokens)
   }
   else if (tokens[2] == "map" && tokens[3] == "dscp-priority")
   {
-    // Handle dscp-priority mapping - delegating to the new method
     return ParseMlsQosDscpPriorityCommand(tokens);
   }
   else
   {
     NS_LOG_WARN("Unknown mls qos map command: " << tokens[3]);
-    return true; // Ignore unknown commands
+    return true;
   }
 }
 
@@ -387,7 +357,6 @@ bool CiscoParser::ParseMlsQosDscpPriorityCommand(
 {
   NS_LOG_FUNCTION(this);
 
-  // Find the "to" token
   size_t toIndex = 0;
   for (size_t i = 4; i < tokens.size(); i++)
   {
@@ -405,7 +374,6 @@ bool CiscoParser::ParseMlsQosDscpPriorityCommand(
     return false;
   }
 
-  // Parse DSCP values
   std::vector<uint32_t> dscpValues;
   for (size_t i = 4; i < toIndex; i++)
   {
@@ -421,7 +389,6 @@ bool CiscoParser::ParseMlsQosDscpPriorityCommand(
     dscpValues.push_back(dscp);
   }
 
-  // Parse priority value
   std::istringstream iss(tokens[toIndex + 1]);
   uint32_t priority;
 
@@ -431,7 +398,6 @@ bool CiscoParser::ParseMlsQosDscpPriorityCommand(
     return false;
   }
 
-  // Map DSCP values to priority level
   for (size_t i = 0; i < dscpValues.size(); i++)
   {
     m_dscpPriorityMap[dscpValues[i]] = priority;
@@ -459,4 +425,4 @@ std::vector<std::string> CiscoParser::Split(std::string str, char delimiter)
   return tokens;
 }
 
-} // namespace ns3
+}

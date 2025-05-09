@@ -1,4 +1,3 @@
-// spq.cc
 #include "spq.h"
 #include "cisco-parser.h"
 #include "ns3/log.h"
@@ -55,12 +54,9 @@ Ptr<Packet> SPQ::Schedule(void)
 {
   NS_LOG_FUNCTION(this);
 
-  // Serve the highest priority queue that has packets
-  // Lower value of priority means higher priority
   uint32_t highestPriority = std::numeric_limits<uint32_t>::max();
   int32_t selectedIndex = -1;
 
-  // Find the highest priority queue with packets
   for (uint32_t i = 0; i < GetNTrafficClasses(); i++)
   {
     Ptr<TrafficClass> tClass = GetTrafficClass(i);
@@ -76,7 +72,6 @@ Ptr<Packet> SPQ::Schedule(void)
     }
   }
 
-  // Return a packet from the selected queue
   if (selectedIndex >= 0)
   {
     NS_LOG_LOGIC("Serving traffic class " << selectedIndex << " with priority "
@@ -103,7 +98,6 @@ bool SPQ::SetConfigFile(std::string filename)
   std::string line;
   uint32_t numQueues = 0;
 
-  // Read the number of queues
   if (std::getline(file, line))
   {
     std::istringstream iss(line);
@@ -115,7 +109,6 @@ bool SPQ::SetConfigFile(std::string filename)
     }
   }
 
-  // Read the priority level for each queue
   for (uint32_t i = 0; i < numQueues; i++)
   {
     if (std::getline(file, line))
@@ -130,11 +123,9 @@ bool SPQ::SetConfigFile(std::string filename)
         return false;
       }
 
-      // Create a new traffic class with the specified priority
       Ptr<TrafficClass> tClass = CreateObject<TrafficClass>();
       tClass->SetPriorityLevel(priority);
 
-      // Add the traffic class to the DiffServ queue
       AddTrafficClass(tClass);
 
       NS_LOG_INFO("Added traffic class " << i << " with priority " << priority);
@@ -156,10 +147,8 @@ bool SPQ::SetCiscoConfigFile(std::string filename)
   NS_LOG_FUNCTION(this << filename);
   m_ciscoConfigFile = filename;
 
-  // Create the parser
   Ptr<CiscoParser> parser = CreateObject<CiscoParser>();
 
-  // Parse the configuration file
   uint32_t numQueues;
   std::vector<uint32_t> priorities;
 
@@ -169,13 +158,11 @@ bool SPQ::SetCiscoConfigFile(std::string filename)
     return false;
   }
 
-  // Create traffic classes based on the parsed configuration
   for (uint32_t i = 0; i < numQueues; i++)
   {
     Ptr<TrafficClass> tClass = CreateObject<TrafficClass>();
     tClass->SetPriorityLevel(priorities[i]);
 
-    // Add the traffic class to the DiffServ queue
     AddTrafficClass(tClass);
 
     NS_LOG_INFO("Added traffic class " << i << " with priority "
@@ -185,4 +172,4 @@ bool SPQ::SetCiscoConfigFile(std::string filename)
   return true;
 }
 
-} // namespace ns3
+}

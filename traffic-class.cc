@@ -1,4 +1,3 @@
-// traffic-class.cc
 #include "traffic-class.h"
 #include "filter.h"
 #include "ns3/double.h"
@@ -38,7 +37,7 @@ TypeId TrafficClass::GetTypeId(void)
 }
 
 TrafficClass::TrafficClass()
-    : m_filters(), m_mode(0), // Packet mode (was QUEUE_MODE_PACKETS)
+    : m_filters(), m_mode(0),
       m_packets(0), m_maxPackets(100), m_weight(1.0), m_priorityLevel(0)
 {
   NS_LOG_FUNCTION(this);
@@ -53,13 +52,11 @@ void TrafficClass::DoDispose(void)
 {
   NS_LOG_FUNCTION(this);
 
-  // Empty the queue
   while (!m_queue.empty())
   {
     m_queue.pop();
   }
 
-  // Clear the filters
   m_filters.clear();
 
   Object::DoDispose();
@@ -69,14 +66,12 @@ bool TrafficClass::Match(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
 
-  // If no filters, always match
   if (m_filters.empty())
   {
     NS_LOG_LOGIC("No filters, default match");
     return true;
   }
 
-  // Check if the packet matches any filter
   for (uint32_t i = 0; i < m_filters.size(); i++)
   {
     if (m_filters[i]->Match(p))
@@ -94,14 +89,12 @@ bool TrafficClass::Enqueue(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
 
-  // Check if the queue is full
   if (m_packets >= m_maxPackets)
   {
     NS_LOG_LOGIC("Queue full, dropping packet");
     return false;
   }
 
-  // Enqueue the packet
   m_queue.push(p);
   m_packets++;
 
@@ -113,14 +106,12 @@ Ptr<Packet> TrafficClass::Dequeue(void)
 {
   NS_LOG_FUNCTION(this);
 
-  // Check if the queue is empty
   if (m_queue.empty())
   {
     NS_LOG_LOGIC("Queue empty");
     return 0;
   }
 
-  // Dequeue the packet
   Ptr<Packet> p = m_queue.front();
   m_queue.pop();
   m_packets--;
@@ -133,14 +124,12 @@ Ptr<Packet> TrafficClass::Peek(void) const
 {
   NS_LOG_FUNCTION(this);
 
-  // Check if the queue is empty
   if (m_queue.empty())
   {
     NS_LOG_LOGIC("Queue empty");
     return 0;
   }
 
-  // Return the first packet without removing it
   return m_queue.front();
 }
 
@@ -198,4 +187,4 @@ uint32_t TrafficClass::GetNPackets(void) const
   return m_packets;
 }
 
-} // namespace ns3
+}

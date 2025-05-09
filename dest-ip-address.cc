@@ -1,4 +1,3 @@
-// dest-ip-address.cc
 #include "dest-ip-address.h"
 #include "ns3/ipv4-header.h"
 #include "ns3/log.h"
@@ -43,14 +42,11 @@ bool DestIpAddress::Match(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
 
-  // Create a copy of the packet
   Ptr<Packet> copy = p->Copy();
 
-  // Try to remove the IPv4 header
   Ipv4Header ipv4Header;
   if (copy->PeekHeader(ipv4Header))
   {
-    // Compare the destination address
     bool match = (ipv4Header.GetDestination() == m_address);
     NS_LOG_LOGIC("Destination IP address "
                  << ipv4Header.GetDestination() << " "
@@ -75,4 +71,4 @@ Ipv4Address DestIpAddress::GetAddress(void) const
   return m_address;
 }
 
-} // namespace ns3
+}

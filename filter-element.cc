@@ -1,4 +1,3 @@
-// filter-element.cc
 #include "filter-element.h"
 #include "ns3/log.h"
 
@@ -31,4 +30,4 @@ void FilterElement::DoDispose(void)
   Object::DoDispose();
 }
 
-} // namespace ns3
+}

@@ -1,4 +1,3 @@
-// diffserv.cc
 #include "diffserv.h"
 #include "ns3/enum.h"
 #include "ns3/log.h"
@@ -98,8 +97,6 @@ Ptr<Packet> DiffServ::DoPeek(void) const
     return 0;
   }
 
-  // This is not entirely correct since it doesn't respect the scheduling
-  // discipline, but it's a reasonable approximation for peeking
   for (uint32_t i = 0; i < m_classes.size(); i++)
   {
     if (!m_classes[i]->IsEmpty())
@@ -134,8 +131,6 @@ Ptr<Packet> DiffServ::Schedule(void)
 {
   NS_LOG_FUNCTION(this);
 
-  // Default scheduler - round robin
-  // Subclasses should override this method
   for (uint32_t i = 0; i < m_classes.size(); i++)
   {
     if (!m_classes[i]->IsEmpty())
@@ -153,7 +148,6 @@ uint32_t DiffServ::Classify(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
 
-  // Default classifier - check all traffic classes
   for (uint32_t i = 0; i < m_classes.size(); i++)
   {
     if (m_classes[i]->Match(p))
@@ -163,7 +157,6 @@ uint32_t DiffServ::Classify(Ptr<Packet> p)
     }
   }
 
-  // If no match, return 0 (best effort class)
   NS_LOG_LOGIC("No matching traffic class, using default (0)");
   return 0;
 }
@@ -214,4 +207,4 @@ Ptr<const Packet> DiffServ::Peek(void) const
   return DoPeek();
 }
 
-} // namespace ns3
+}

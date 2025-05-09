@@ -1,4 +1,3 @@
-// dest-ip-address.h
 #ifndef DEST_IP_ADDRESS_H
 #define DEST_IP_ADDRESS_H
 
@@ -64,6 +63,6 @@ private:
   virtual void DoDispose(void);
 };
 
-} // namespace ns3
+}
 
-#endif /* DEST_IP_ADDRESS_H */
+#endif

@@ -1,10 +1,9 @@
-// diffserv-simulation.cc
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/flow-monitor-module.h"
 #include "ns3/gnuplot.h"
 #include "ns3/internet-module.h"
-#include "ns3/ipv4-flow-classifier.h" // For Ipv4FlowClassifier and FiveTuple
+#include "ns3/ipv4-flow-classifier.h"
 #include "ns3/network-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/traffic-control-module.h"
@@ -24,32 +23,22 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("DiffServSimulation");
 
-// --- Global Variables ---
-
-// Helper for FlowMonitor, made global for easier access in scheduled functions
-// if needed by classifier
 static FlowMonitorHelper g_flowHelper;
 
-// Application base port
 uint16_t portBase = 9;
 
-// Plotting data
 static std::map<FlowId, std::map<double, double>> g_flowPlotData;
 static std::map<FlowId, uint64_t> g_lastRxPackets;
 static std::map<FlowId, Ipv4FlowClassifier::FiveTuple> g_flowFiveTuples;
 
-// Application-specific ports (will be set in setup functions)
 static uint16_t g_appBPort_SPQ;
 static uint16_t g_appAPort_SPQ;
 static uint16_t g_appAPort_DRR;
 static uint16_t g_appBPort_DRR;
 static uint16_t g_appCPort_DRR;
 
-// Simulation parameters
 static double g_plotBinInterval = 0.5;
 static double g_simDuration = 40.0;
-
-// --- Function Definitions ---
 
 void WriteDefaultConfigFile(const std::string& filename,
                             const std::string& content)
@@ -69,19 +58,19 @@ void WriteDefaultConfigFile(const std::string& filename,
 
 void CreateTopology(
     NodeContainer& nodes,
-    NetDeviceContainer& p2pDevices, // Can be useful to return all p2p devices
+    NetDeviceContainer& p2pDevices,
     InternetStackHelper& stack, Ipv4AddressHelper& address,
     Ipv4InterfaceContainer& routerInterfaces,
     Ipv4InterfaceContainer& sourceHostInterface,
     Ipv4InterfaceContainer& sinkHostInterface)
 {
-  nodes.Create(3); // Node 0: Source, Node 1: Router, Node 2: Sink
+  nodes.Create(3);
   PointToPointHelper p2pLink1, p2pLink2;
 
   p2pLink1.SetDeviceAttribute("DataRate", StringValue("4Mbps"));
   p2pLink1.SetChannelAttribute("Delay", StringValue("2ms"));
 
-  p2pLink2.SetDeviceAttribute("DataRate", StringValue("1Mbps")); // Bottleneck
+  p2pLink2.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
   p2pLink2.SetChannelAttribute("Delay", StringValue("2ms"));
 
   NetDeviceContainer devices01 = p2pLink1.Install(nodes.Get(0), nodes.Get(1));
@@ -108,8 +97,8 @@ void CreateTopology(
 void SetupSPQValidation(
     NodeContainer& nodes, Ipv4InterfaceContainer& sinkNodeInterface,
     std::string configFile, ApplicationContainer& apps,
-    Ptr<FlowMonitor>& flowMonitorInstance, // Output param
-    FlowMonitorHelper& localFlowHelper,    // Use this specific helper
+    Ptr<FlowMonitor>& flowMonitorInstance,
+    FlowMonitorHelper& localFlowHelper,
     bool useCiscoConfig)
 {
   NS_LOG_INFO("Setting up SPQ validation scenario");
@@ -141,7 +130,7 @@ void SetupSPQValidation(
                 "SPQ config did not create at least 2 queues for validation.");
 
   Ptr<TrafficClass> highPriorityClass =
-      spq->GetTrafficClass(0); // Assuming TC 0 from config is high
+      spq->GetTrafficClass(0);
   NS_ASSERT_MSG(
       highPriorityClass,
       "Could not get high priority traffic class (index 0) from SPQ object.");
@@ -150,7 +139,7 @@ void SetupSPQValidation(
   highPriorityClass->AddFilter(highFilter);
 
   Ptr<TrafficClass> lowPriorityClass =
-      spq->GetTrafficClass(1); // Assuming TC 1 from config is low
+      spq->GetTrafficClass(1);
   NS_ASSERT_MSG(
       lowPriorityClass,
       "Could not get low priority traffic class (index 1) from SPQ object.");
@@ -223,7 +212,7 @@ void SetupSPQValidationFromCisco(NodeContainer& nodes,
       "SPQ Cisco config did not create at least 2 queues for validation.");
 
   Ptr<TrafficClass> highPriorityClass =
-      spq->GetTrafficClass(0); // Highest priority
+      spq->GetTrafficClass(0);
   NS_ASSERT_MSG(highPriorityClass,
                 "Could not get high priority traffic class (index 0).");
   Ptr<Filter> highFilter = CreateObject<Filter>();
@@ -231,7 +220,7 @@ void SetupSPQValidationFromCisco(NodeContainer& nodes,
   highPriorityClass->AddFilter(highFilter);
 
   Ptr<TrafficClass> lowPriorityClass =
-      spq->GetTrafficClass(1); // Lower priority
+      spq->GetTrafficClass(1);
   NS_ASSERT_MSG(lowPriorityClass,
                 "Could not get low priority traffic class (index 1).");
   Ptr<Filter> lowFilter = CreateObject<Filter>();
@@ -282,8 +271,8 @@ void SetupSPQValidationFromCisco(NodeContainer& nodes,
 void SetupDRRValidation(
     NodeContainer& nodes, Ipv4InterfaceContainer& sinkNodeInterface,
     std::string configFile, ApplicationContainer& apps,
-    Ptr<FlowMonitor>& flowMonitorInstance, // Output param
-    FlowMonitorHelper& localFlowHelper     // Use this specific helper
+    Ptr<FlowMonitor>& flowMonitorInstance,
+    FlowMonitorHelper& localFlowHelper
 )
 {
   NS_LOG_INFO("Setting up DRR validation scenario");
@@ -326,7 +315,7 @@ void SetupDRRValidation(
   routerEgressDev->SetAttribute("TxQueue", PointerValue(drr));
 
   ApplicationContainer sourceAppsLocal,
-      sinkAppsLocal; // Use local to avoid confusion with 'apps' parameter
+      sinkAppsLocal;
 
   BulkSendHelper sourceWt3(
       "ns3::TcpSocketFactory",
@@ -382,14 +371,13 @@ void RecordPeriodicStats(Ptr<FlowMonitor> monitor,
     {
       Ipv4FlowClassifier::FiveTuple ft = classifier->FindFlow(flowId);
       if (ft.sourceAddress != Ipv4Address())
-      { // Basic check for validity
+      {
         g_flowFiveTuples[flowId] = ft;
       }
       else
       {
         NS_LOG_DEBUG("Classifier could not find flow "
                      << flowId << " in RecordPeriodicStats yet.");
-        // Continue, maybe it's a new flow not fully registered.
       }
     }
 
@@ -400,8 +388,6 @@ void RecordPeriodicStats(Ptr<FlowMonitor> monitor,
     }
     else
     {
-      // If still not found after trying above, log and skip this stat update
-      // for this flow
       NS_LOG_WARN("Could not determine destination port for flowId "
                   << flowId
                   << " in RecordPeriodicStats. Skipping stat update.");
@@ -465,7 +451,7 @@ void GenerateThroughputPlot(FlowMonitorHelper& localFlowHelper,
   plot.SetTerminal("pngcairo enhanced font 'arial,10' size 800,600");
   plot.SetTitle("Throughput vs Time");
   plot.SetLegend("Time (s)",
-                 "Throughput (Packets/sec)"); // More descriptive legend
+                 "Throughput (Packets/sec)");
   plot.SetExtra("set xrange [0:" + std::to_string(g_simDuration) + "]");
   plot.SetExtra("set yrange [0:]");
 
@@ -495,18 +481,15 @@ void GenerateThroughputPlot(FlowMonitorHelper& localFlowHelper,
     }
     else
     {
-      // This case implies the flow was never properly classified in
-      // RecordPeriodicStats or g_flowPlotData contains an entry for a flow that
-      // RecordPeriodicStats couldn't get a FiveTuple for.
+
       NS_LOG_WARN("FlowId " << flowId
                             << " FiveTuple not found in g_flowFiveTuples "
                                "during plotting. Plotting with default title.");
-      // Optionally, try to find it now, though it should have been found
-      // earlier
+
       Ipv4FlowClassifier::FiveTuple ft = classifier->FindFlow(flowId);
       if (ft.sourceAddress != Ipv4Address())
       {
-        g_flowFiveTuples[flowId] = ft; // Store if found now
+        g_flowFiveTuples[flowId] = ft;
         destPort = ft.destinationPort;
       }
     }
@@ -522,19 +505,19 @@ void GenerateThroughputPlot(FlowMonitorHelper& localFlowHelper,
     if (isSPQ)
     {
       if (g_appBPort_SPQ != 0 && destPort == g_appBPort_SPQ)
-      { // Check port initialized
+      {
         title = "Low Priority (Port " + std::to_string(destPort) + ")";
         color = "blue";
         plotThisFlow = true;
       }
       else if (g_appAPort_SPQ != 0 && destPort == g_appAPort_SPQ)
-      { // Check port initialized
+      {
         title = "High Priority (Port " + std::to_string(destPort) + ")";
         color = "red";
         plotThisFlow = true;
       }
     }
-    else // DRR
+    else
     {
       if (g_appAPort_DRR != 0 && destPort == g_appAPort_DRR)
       {
@@ -617,7 +600,7 @@ void GenerateThroughputPlot(FlowMonitorHelper& localFlowHelper,
   }
 
   std::ofstream plotGenFile(
-      (filename + ".plt").c_str()); // Changed variable name
+      (filename + ".plt").c_str());
   plot.GenerateOutput(plotGenFile);
   plotGenFile.close();
 
@@ -698,28 +681,18 @@ int main(int argc, char* argv[])
   Ipv4InterfaceContainer routerIfs;
   Ipv4InterfaceContainer sourceHostIf;
 
-  // hello
-  //  ...
   Ipv4InterfaceContainer sinkHostIf;
 
-  // Note: The 'p2pDevices' NetDeviceContainer from CreateTopology is not
-  // directly used for PCAP in this specific setup, as we get devices directly
-  // from the router node. However, it's good practice to have it if you need to
-  // iterate over all p2p devices.
   CreateTopology(allNodes, p2pDevices, internetStack, ipv4Address, routerIfs,
                  sourceHostIf, sinkHostIf);
   NS_ASSERT_MSG(
       allNodes.GetN() > 0,
-      "Nodes not created in CreateTopology."); // Good to have this check
+      "Nodes not created in CreateTopology.");
 
-  // --- PCAP Tracing Setup ---
-  PointToPointHelper p2pHelperForPcap;    // Helper to enable PCAP
-  Ptr<Node> routerNode = allNodes.Get(1); // Get the router node
+  PointToPointHelper p2pHelperForPcap;
+  Ptr<Node> routerNode = allNodes.Get(1);
   NS_ASSERT_MSG(routerNode, "PCAP Setup: Failed to get router node (Node 1).");
 
-  // Device 0 on the router is connected to the source (this is the ingress to
-  // the QoS node) Device 1 on the router is connected to the sink (this is the
-  // egress from the QoS node)
   Ptr<NetDevice> routerIngressNetDevice = routerNode->GetDevice(0);
   Ptr<NetDevice> routerEgressNetDevice = routerNode->GetDevice(1);
 
@@ -733,15 +706,15 @@ int main(int argc, char* argv[])
 
   if (mode == "spq")
   {
-    preQosPcapFilename = "PreSPQ";   // ns-3 will append .pcap
-    postQosPcapFilename = "PostSPQ"; // ns-3 will append .pcap
+    preQosPcapFilename = "PreSPQ";
+    postQosPcapFilename = "PostSPQ";
     NS_LOG_INFO("Enabling PCAP for SPQ: " << preQosPcapFilename << ".pcap and "
                                           << postQosPcapFilename << ".pcap");
   }
   else if (mode == "drr")
   {
-    preQosPcapFilename = "PreDRR";   // ns-3 will append .pcap
-    postQosPcapFilename = "PostDRR"; // ns-3 will append .pcap
+    preQosPcapFilename = "PreDRR";
+    postQosPcapFilename = "PostDRR";
     NS_LOG_INFO("Enabling PCAP for DRR: " << preQosPcapFilename << ".pcap and "
                                           << postQosPcapFilename << ".pcap");
   }
@@ -753,18 +726,17 @@ int main(int argc, char* argv[])
 
   if (!preQosPcapFilename.empty() && !postQosPcapFilename.empty())
   {
-    // promiscuous=true, explicitFilename=true (ns-3 appends .pcap to the
-    // provided prefix)
+
     p2pHelperForPcap.EnablePcap(preQosPcapFilename, routerIngressNetDevice,
                                 true, true);
     p2pHelperForPcap.EnablePcap(postQosPcapFilename, routerEgressNetDevice,
                                 true, true);
   }
-  // --- End PCAP Tracing Setup ---
+
 
   ApplicationContainer allApps;
   Ptr<FlowMonitor> flowMonInstance;
-  // g_flowHelper is already declared globally
+
 
   if (mode == "spq")
   {
@@ -805,15 +777,14 @@ int main(int argc, char* argv[])
   Simulator::Run();
   NS_LOG_INFO("Simulation finished.");
 
-  // Ensure all packets are processed by flow monitor before final stat
-  // collection
+
   if (flowMonInstance)
-  {                                         // Check if flowMonInstance is valid
-    flowMonInstance->CheckForLostPackets(); // Update lost packet counts
+  {
+    flowMonInstance->CheckForLostPackets();
     flowMonInstance->SerializeToXmlFile("flowmonitor_final.xml", true, true);
   }
   RecordPeriodicStats(flowMonInstance, classifier,
-                      (mode == "spq")); // Final stat collection
+                      (mode == "spq"));
 
   std::string plotFileTag = mode;
   if (mode == "spq" && useCiscoConfig)

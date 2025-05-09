@@ -1,4 +1,3 @@
-// source-ip-address.cc
 #include "source-ip-address.h"
 #include "ns3/ipv4-header.h"
 #include "ns3/log.h"
@@ -43,10 +42,8 @@ bool SourceIpAddress::Match(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
 
-  // Create a copy of the packet
   Ptr<Packet> copy = p->Copy();
 
-  // Try to remove the IPv4 header
   Ipv4Header ipHeader;
   if (copy->PeekHeader(ipHeader))
   {
@@ -70,4 +67,4 @@ Ipv4Address SourceIpAddress::GetAddress(void) const
   return m_address;
 }
 
-} // namespace ns3
+}
