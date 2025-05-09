@@ -56,13 +56,11 @@ void WriteDefaultConfigFile(const std::string& filename,
   }
 }
 
-void CreateTopology(
-    NodeContainer& nodes,
-    NetDeviceContainer& p2pDevices,
-    InternetStackHelper& stack, Ipv4AddressHelper& address,
-    Ipv4InterfaceContainer& routerInterfaces,
-    Ipv4InterfaceContainer& sourceHostInterface,
-    Ipv4InterfaceContainer& sinkHostInterface)
+void CreateTopology(NodeContainer& nodes, NetDeviceContainer& p2pDevices,
+                    InternetStackHelper& stack, Ipv4AddressHelper& address,
+                    Ipv4InterfaceContainer& routerInterfaces,
+                    Ipv4InterfaceContainer& sourceHostInterface,
+                    Ipv4InterfaceContainer& sinkHostInterface)
 {
   nodes.Create(3);
   PointToPointHelper p2pLink1, p2pLink2;
@@ -94,12 +92,11 @@ void CreateTopology(
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 }
 
-void SetupSPQValidation(
-    NodeContainer& nodes, Ipv4InterfaceContainer& sinkNodeInterface,
-    std::string configFile, ApplicationContainer& apps,
-    Ptr<FlowMonitor>& flowMonitorInstance,
-    FlowMonitorHelper& localFlowHelper,
-    bool useCiscoConfig)
+void SetupSPQValidation(NodeContainer& nodes,
+                        Ipv4InterfaceContainer& sinkNodeInterface,
+                        std::string configFile, ApplicationContainer& apps,
+                        Ptr<FlowMonitor>& flowMonitorInstance,
+                        FlowMonitorHelper& localFlowHelper, bool useCiscoConfig)
 {
   NS_LOG_INFO("Setting up SPQ validation scenario");
 
@@ -129,8 +126,7 @@ void SetupSPQValidation(
   NS_ASSERT_MSG(spq->GetNTrafficClasses() >= 2,
                 "SPQ config did not create at least 2 queues for validation.");
 
-  Ptr<TrafficClass> highPriorityClass =
-      spq->GetTrafficClass(0);
+  Ptr<TrafficClass> highPriorityClass = spq->GetTrafficClass(0);
   NS_ASSERT_MSG(
       highPriorityClass,
       "Could not get high priority traffic class (index 0) from SPQ object.");
@@ -138,8 +134,7 @@ void SetupSPQValidation(
   highFilter->AddFilterElement(CreateObject<DestPortFilter>(g_appAPort_SPQ));
   highPriorityClass->AddFilter(highFilter);
 
-  Ptr<TrafficClass> lowPriorityClass =
-      spq->GetTrafficClass(1);
+  Ptr<TrafficClass> lowPriorityClass = spq->GetTrafficClass(1);
   NS_ASSERT_MSG(
       lowPriorityClass,
       "Could not get low priority traffic class (index 1) from SPQ object.");
@@ -211,16 +206,14 @@ void SetupSPQValidationFromCisco(NodeContainer& nodes,
       spq->GetNTrafficClasses() >= 2,
       "SPQ Cisco config did not create at least 2 queues for validation.");
 
-  Ptr<TrafficClass> highPriorityClass =
-      spq->GetTrafficClass(0);
+  Ptr<TrafficClass> highPriorityClass = spq->GetTrafficClass(0);
   NS_ASSERT_MSG(highPriorityClass,
                 "Could not get high priority traffic class (index 0).");
   Ptr<Filter> highFilter = CreateObject<Filter>();
   highFilter->AddFilterElement(CreateObject<DestPortFilter>(g_appAPort_SPQ));
   highPriorityClass->AddFilter(highFilter);
 
-  Ptr<TrafficClass> lowPriorityClass =
-      spq->GetTrafficClass(1);
+  Ptr<TrafficClass> lowPriorityClass = spq->GetTrafficClass(1);
   NS_ASSERT_MSG(lowPriorityClass,
                 "Could not get low priority traffic class (index 1).");
   Ptr<Filter> lowFilter = CreateObject<Filter>();
@@ -268,12 +261,11 @@ void SetupSPQValidationFromCisco(NodeContainer& nodes,
   flowMonitorInstance = localFlowHelper.InstallAll();
 }
 
-void SetupDRRValidation(
-    NodeContainer& nodes, Ipv4InterfaceContainer& sinkNodeInterface,
-    std::string configFile, ApplicationContainer& apps,
-    Ptr<FlowMonitor>& flowMonitorInstance,
-    FlowMonitorHelper& localFlowHelper
-)
+void SetupDRRValidation(NodeContainer& nodes,
+                        Ipv4InterfaceContainer& sinkNodeInterface,
+                        std::string configFile, ApplicationContainer& apps,
+                        Ptr<FlowMonitor>& flowMonitorInstance,
+                        FlowMonitorHelper& localFlowHelper)
 {
   NS_LOG_INFO("Setting up DRR validation scenario");
 
@@ -314,8 +306,7 @@ void SetupDRRValidation(
   Ptr<NetDevice> routerEgressDev = router->GetDevice(1);
   routerEgressDev->SetAttribute("TxQueue", PointerValue(drr));
 
-  ApplicationContainer sourceAppsLocal,
-      sinkAppsLocal;
+  ApplicationContainer sourceAppsLocal, sinkAppsLocal;
 
   BulkSendHelper sourceWt3(
       "ns3::TcpSocketFactory",
@@ -450,8 +441,7 @@ void GenerateThroughputPlot(FlowMonitorHelper& localFlowHelper,
   Gnuplot plot(filename + ".png");
   plot.SetTerminal("pngcairo enhanced font 'arial,10' size 800,600");
   plot.SetTitle("Throughput vs Time");
-  plot.SetLegend("Time (s)",
-                 "Throughput (Packets/sec)");
+  plot.SetLegend("Time (s)", "Throughput (Packets/sec)");
   plot.SetExtra("set xrange [0:" + std::to_string(g_simDuration) + "]");
   plot.SetExtra("set yrange [0:]");
 
@@ -599,8 +589,7 @@ void GenerateThroughputPlot(FlowMonitorHelper& localFlowHelper,
     plot.AddDataset(dataset);
   }
 
-  std::ofstream plotGenFile(
-      (filename + ".plt").c_str());
+  std::ofstream plotGenFile((filename + ".plt").c_str());
   plot.GenerateOutput(plotGenFile);
   plotGenFile.close();
 
@@ -685,9 +674,7 @@ int main(int argc, char* argv[])
 
   CreateTopology(allNodes, p2pDevices, internetStack, ipv4Address, routerIfs,
                  sourceHostIf, sinkHostIf);
-  NS_ASSERT_MSG(
-      allNodes.GetN() > 0,
-      "Nodes not created in CreateTopology.");
+  NS_ASSERT_MSG(allNodes.GetN() > 0, "Nodes not created in CreateTopology.");
 
   PointToPointHelper p2pHelperForPcap;
   Ptr<Node> routerNode = allNodes.Get(1);
@@ -733,10 +720,8 @@ int main(int argc, char* argv[])
                                 true, true);
   }
 
-
   ApplicationContainer allApps;
   Ptr<FlowMonitor> flowMonInstance;
-
 
   if (mode == "spq")
   {
@@ -777,14 +762,12 @@ int main(int argc, char* argv[])
   Simulator::Run();
   NS_LOG_INFO("Simulation finished.");
 
-
   if (flowMonInstance)
   {
     flowMonInstance->CheckForLostPackets();
     flowMonInstance->SerializeToXmlFile("flowmonitor_final.xml", true, true);
   }
-  RecordPeriodicStats(flowMonInstance, classifier,
-                      (mode == "spq"));
+  RecordPeriodicStats(flowMonInstance, classifier, (mode == "spq"));
 
   std::string plotFileTag = mode;
   if (mode == "spq" && useCiscoConfig)
