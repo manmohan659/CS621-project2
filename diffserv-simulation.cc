@@ -776,8 +776,7 @@ int main(int argc, char* argv[])
     else
     {
       SetupSPQValidationFromCisco(allNodes, sinkHostIf, configFile, allApps,
-                                  flowMonInstance, g_flowHelper,
-                                  useCiscoConfig);
+                                  flowMonInstance, g_flowHelper);
     }
   }
   else if (mode == "drr")
