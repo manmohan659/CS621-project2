@@ -90,3 +90,5 @@ make clean
 
 The current implementation uses TCP for traffic generation, which introduces congestion control dynamics that can affect the observed QoS behavior. For clearer demonstration of QoS mechanisms, UDP might provide more predictable results.
 Packet capture is implemented using FlowMonitor rather than direct pcap capture at specific NetDevices.
+
+For simulation analysis, this project employs ns-3's FlowMonitor to capture detailed per-flow statistics, which are serialized to flowmonitor_final.xml for comprehensive data retention. Concurrently, key throughput metrics are extracted from FlowMonitor during the simulation and aggregated within the C++ environment. These aggregated metrics are then utilized by ns-3's Gnuplot helper classes to automatically generate the required throughput vs. time plots upon simulation completion, providing an integrated approach to visualization.
