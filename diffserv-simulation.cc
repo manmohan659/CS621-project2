@@ -768,8 +768,17 @@ int main(int argc, char* argv[])
 
   if (mode == "spq")
   {
-    SetupSPQValidation(allNodes, sinkHostIf, configFile, allApps,
-                       flowMonInstance, g_flowHelper, useCiscoConfig);
+    if (!useCiscoConfig)
+    {
+      SetupSPQValidation(allNodes, sinkHostIf, configFile, allApps,
+                         flowMonInstance, g_flowHelper, useCiscoConfig);
+    }
+    else
+    {
+      SetupSPQValidationFromCisco(allNodes, sinkHostIf, configFile, allApps,
+                                  flowMonInstance, g_flowHelper,
+                                  useCiscoConfig);
+    }
   }
   else if (mode == "drr")
   {
