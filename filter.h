@@ -2,11 +2,12 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include "ns3/packet.h"
 #include "ns3/object.h"
+#include "ns3/packet.h"
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 class FilterElement;
 
@@ -24,39 +25,39 @@ public:
    * \brief Get the type ID.
    * \return the object TypeId
    */
-  static TypeId GetTypeId (void);
-  
+  static TypeId GetTypeId(void);
+
   /**
    * \brief Constructor
    */
-  Filter ();
-  
+  Filter();
+
   /**
    * \brief Destructor
    */
-  virtual ~Filter ();
-  
+  virtual ~Filter();
+
   /**
    * \brief Check if a packet matches this filter
    * \param p The packet to check
    * \return True if the packet matches this filter
    */
-  bool Match (Ptr<Packet> p);
-  
+  bool Match(Ptr<Packet> p);
+
   /**
    * \brief Add a filter element to this filter
    * \param element The filter element to add
    */
-  void AddFilterElement (Ptr<FilterElement> element);
+  void AddFilterElement(Ptr<FilterElement> element);
 
 protected:
   /**
    * \brief Dispose of the object
    */
-  virtual void DoDispose (void);
+  virtual void DoDispose(void);
 
 private:
-  std::vector<Ptr<FilterElement> > m_elements; //!< Vector of filter elements
+  std::vector<Ptr<FilterElement>> m_elements; //!< Vector of filter elements
 };
 
 } // namespace ns3
