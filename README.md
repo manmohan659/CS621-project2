@@ -76,22 +76,6 @@ This simulates a 3-node topology with three bulk data transfer applications, eac
 To run SPQ with Cisco-style configuration:
 `make run-spq-cisco`
 
-## Configuration Files
-### SPQ Configuration
-The SPQ configuration file (spq.config) specifies the number of queues and their associated priority levels. Lower priority values indicate higher priority.
-Example:
-2
-0  // High priority queue
-1  // Low priority queue
-
-### DRR Configuration
-The DRR configuration file (drr.config) specifies the number of queues and the quantum value assigned to each queue.
-Example:
-3
-1500  // Queue with weight 1.5
-3000  // Queue with weight 3
-3000  // Queue with weight 3
-
 #### Output
 Each simulation produces a throughput vs. time plot in PNG format:
 - SPQ: spq-throughput.png
