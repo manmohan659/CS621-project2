@@ -351,8 +351,8 @@ void SetupDRRValidation(NodeContainer& nodes,
   UdpClientHelper sourceWt3(sinkNodeInterface.GetAddress(0), g_appAPort_DRR);
   sourceWt3.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited packets
   sourceWt3.SetAttribute("Interval",
-                         TimeValue(Seconds(0.01)));         // Packet interval
-  sourceWt3.SetAttribute("PacketSize", UintegerValue(100)); // Bytes per packet
+                         TimeValue(Seconds(0.01)));          // Packet interval
+  sourceWt3.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per packet
   sourceAppsLocal.Add(sourceWt3.Install(nodes.Get(0)));
   UdpServerHelper sinkWt3(g_appAPort_DRR);
   sinkAppsLocal.Add(sinkWt3.Install(nodes.Get(2)));
@@ -360,8 +360,8 @@ void SetupDRRValidation(NodeContainer& nodes,
   UdpClientHelper sourceWt2(sinkNodeInterface.GetAddress(0), g_appBPort_DRR);
   sourceWt2.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited packets
   sourceWt2.SetAttribute("Interval",
-                         TimeValue(Seconds(0.01)));         // Packet interval
-  sourceWt2.SetAttribute("PacketSize", UintegerValue(100)); // Bytes per packet
+                         TimeValue(Seconds(0.01)));          // Packet interval
+  sourceWt2.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per packet
   sourceAppsLocal.Add(sourceWt2.Install(nodes.Get(0)));
   UdpServerHelper sinkWt2(g_appBPort_DRR);
   sinkAppsLocal.Add(sinkWt2.Install(nodes.Get(2)));
@@ -369,8 +369,8 @@ void SetupDRRValidation(NodeContainer& nodes,
   UdpClientHelper sourceWt1(sinkNodeInterface.GetAddress(0), g_appCPort_DRR);
   sourceWt1.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited packets
   sourceWt1.SetAttribute("Interval",
-                         TimeValue(Seconds(0.01)));         // Packet interval
-  sourceWt1.SetAttribute("PacketSize", UintegerValue(100)); // Bytes per packet
+                         TimeValue(Seconds(0.01)));          // Packet interval
+  sourceWt1.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per packet
   sourceAppsLocal.Add(sourceWt1.Install(nodes.Get(0)));
   UdpServerHelper sinkWt1(g_appCPort_DRR);
   sinkAppsLocal.Add(sinkWt1.Install(nodes.Get(2)));
