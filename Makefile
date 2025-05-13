@@ -23,6 +23,7 @@ NS3_LIBS :=  -lns3.$(NS3_VERSION)-core$(NS3_SUFFIX) \
              -lns3.$(NS3_VERSION)-applications$(NS3_SUFFIX) \
              -lns3.$(NS3_VERSION)-traffic-control$(NS3_SUFFIX) \
              -lns3.$(NS3_VERSION)-flow-monitor$(NS3_SUFFIX) \
+             -lns3.$(NS3_VERSION)-bridge$(NS3_SUFFIX) \
              -lns3.$(NS3_VERSION)-stats$(NS3_SUFFIX)          # ← NEW
 
 # Debug variables
@@ -50,30 +51,30 @@ clean:
 	rm -f $(OBJS) $(EXEC)
 
 # convenience runners
-run-spq:         $(EXEC) ; ./$(EXEC) --mode=spq        --config=spq.config
-run-spq-cisco:   $(EXEC) ; ./$(EXEC) --mode=spq        --config=cisco-spq.config --cisco=true
-run-drr:         $(EXEC) ; ./$(EXEC) --mode=drr        --config=drr.config
+run-spq:         $(EXEC) ; LD_LIBRARY_PATH=$(NS3_LIB_DIR) ./$(EXEC) --mode=spq        --config=spq.config
+run-spq-cisco:   $(EXEC) ; LD_LIBRARY_PATH=$(NS3_LIB_DIR) ./$(EXEC) --mode=spq        --config=cisco-spq.config --cisco=true
+run-drr:         $(EXEC) ; LD_LIBRARY_PATH=$(NS3_LIB_DIR) ./$(EXEC) --mode=drr        --config=drr.config
 run-all: run-spq run-spq-cisco run-drr
 
 # Run with GDB
 debug-spq: $(EXEC)
-	NS_LOG=$(DEBUG_LOG) gdb --args ./$(EXEC) --mode=spq --config=spq.config
+	NS_LOG=$(DEBUG_LOG) LD_LIBRARY_PATH=$(NS3_LIB_DIR) gdb --args ./$(EXEC) --mode=spq --config=spq.config
 
 debug-spq-cisco: $(EXEC)
-	NS_LOG=$(DEBUG_LOG) gdb --args ./$(EXEC) --mode=spq --config=cisco-spq.config --cisco=true
+	NS_LOG=$(DEBUG_LOG) LD_LIBRARY_PATH=$(NS3_LIB_DIR) gdb --args ./$(EXEC) --mode=spq --config=cisco-spq.config --cisco=true
 
 debug-drr: $(EXEC)
-	NS_LOG=$(DEBUG_LOG) gdb --args ./$(EXEC) --mode=drr --config=drr.config
+	NS_LOG=$(DEBUG_LOG) LD_LIBRARY_PATH=$(NS3_LIB_DIR) gdb --args ./$(EXEC) --mode=drr --config=drr.config
 
 # Run with logs but no debugger
 log-spq: $(EXEC)
-	NS_LOG=$(DEBUG_LOG) ./$(EXEC) --mode=spq --config=spq.config 2>&1 | tee spq-debug.log
+	NS_LOG=$(DEBUG_LOG) LD_LIBRARY_PATH=$(NS3_LIB_DIR) ./$(EXEC) --mode=spq --config=spq.config 2>&1 | tee spq-debug.log
 
 log-spq-cisco: $(EXEC)
-	NS_LOG=$(DEBUG_LOG) ./$(EXEC) --mode=spq --config=cisco-spq.config --cisco=true 2>&1 | tee spq-cisco-debug.log
+	NS_LOG=$(DEBUG_LOG) LD_LIBRARY_PATH=$(NS3_LIB_DIR) ./$(EXEC) --mode=spq --config=cisco-spq.config --cisco=true 2>&1 | tee spq-cisco-debug.log
 
 log-drr: $(EXEC)
-	NS_LOG=$(DEBUG_LOG) ./$(EXEC) --mode=drr --config=drr.config 2>&1 | tee drr-debug.log
+	NS_LOG=$(DEBUG_LOG) LD_LIBRARY_PATH=$(NS3_LIB_DIR) ./$(EXEC) --mode=drr --config=drr.config 2>&1 | tee drr-debug.log
 
 # Debug all configurations
 debug-all: debug-spq debug-spq-cisco debug-drr
