@@ -130,90 +130,87 @@ Ptr<Packet> DRR::Schedule(void)
                 << GetNTrafficClasses() << "). Cannot schedule.");
     return nullptr;
   }
-
-  for (uint32_t i = 0; i < numManagedQueues; ++i)
+  while (true)
   {
-    uint32_t currentQueueIndex = (m_lastQueueServed + 1 + i) % numManagedQueues;
-
-    Ptr<TrafficClass> tc = GetTrafficClass(currentQueueIndex);
-    if (!tc)
+    for (uint32_t i = 0; i < numManagedQueues; ++i)
     {
-      NS_LOG_WARN("DRR: TrafficClass for queue "
-                  << currentQueueIndex << " is unexpectedly null. Skipping.");
-      continue;
-    }
+      uint32_t currentQueueIndex =
+          (m_lastQueueServed + 1 + i) % numManagedQueues;
 
-    if (tc->IsEmpty())
-    {
-      NS_LOG_LOGIC("DRR: Queue " << currentQueueIndex
-                                 << " is empty. Skipping.");
-      continue;
-    }
+      Ptr<TrafficClass> tc = GetTrafficClass(currentQueueIndex);
+      if (!tc)
+      {
+        NS_LOG_WARN("DRR: TrafficClass for queue "
+                    << currentQueueIndex << " is unexpectedly null. Skipping.");
+        continue;
+      }
+      m_deficits[currentQueueIndex] += m_quantums[currentQueueIndex];
 
-    // test code. remove later. //todo
-    // if (!tc->IsEmpty())
-    // {
-    //   m_lastQueueServed = currentQueueIndex;
-    //   return tc->Dequeue();
-    // }
-
-    m_deficits[currentQueueIndex] += m_quantums[currentQueueIndex];
-    NS_LOG_DEBUG("DRR: Queue " << currentQueueIndex
-                               << " gets turn. Prior Deficit: "
-                               << (m_deficits[currentQueueIndex] -
-                                   m_quantums[currentQueueIndex])
-                               << ", Quantum: " << m_quantums[currentQueueIndex]
-                               << ". Total Deficit for round: "
-                               << m_deficits[currentQueueIndex]);
-
-    if (!tc->IsEmpty() && m_deficits[currentQueueIndex] > 0)
-    {
-      Ptr<Packet> packetToPeek = tc->Peek();
-      NS_ASSERT(packetToPeek);
-      uint32_t packetSize = packetToPeek->GetSize();
+      if (tc->IsEmpty())
+      {
+        NS_LOG_LOGIC("DRR: Queue " << currentQueueIndex
+                                   << " is empty. Skipping.");
+        continue;
+      }
 
       NS_LOG_DEBUG("DRR: Queue "
-                   << currentQueueIndex << " Peeked packet size: " << packetSize
-                   << "B. Deficit: " << m_deficits[currentQueueIndex]);
+                   << currentQueueIndex << " gets turn. Prior Deficit: "
+                   << (m_deficits[currentQueueIndex] -
+                       m_quantums[currentQueueIndex])
+                   << ", Quantum: " << m_quantums[currentQueueIndex]
+                   << ". Total Deficit for round: "
+                   << m_deficits[currentQueueIndex]);
 
-      if (packetSize <= m_deficits[currentQueueIndex])
+      if (!tc->IsEmpty() && m_deficits[currentQueueIndex] > 0)
       {
-        Ptr<Packet> packetToSend = tc->Dequeue();
-        m_deficits[currentQueueIndex] -= packetSize;
+        Ptr<Packet> packetToPeek = tc->Peek();
+        NS_ASSERT(packetToPeek);
+        uint32_t packetSize = packetToPeek->GetSize();
 
-        NS_LOG_INFO("DRR: Dequeued packet (size "
-                    << packetSize << "B) from queue " << currentQueueIndex
-                    << ". Deficit remaining: "
-                    << m_deficits[currentQueueIndex]);
+        NS_LOG_DEBUG("DRR: Queue "
+                     << currentQueueIndex
+                     << " Peeked packet size: " << packetSize
+                     << "B. Deficit: " << m_deficits[currentQueueIndex]);
 
-        m_lastQueueServed = currentQueueIndex;
+        if (packetSize <= m_deficits[currentQueueIndex])
+        {
+          Ptr<Packet> packetToSend = tc->Dequeue();
+          m_deficits[currentQueueIndex] -= packetSize;
 
-        // if (tc->IsEmpty())
-        // {
-        //   NS_LOG_DEBUG("DRR: Queue "
-        //                << currentQueueIndex
-        //                << " is now empty. Resetting deficit to 0.");
-        //   m_deficits[currentQueueIndex] = 0;
-        // }
-        return packetToSend;
+          NS_LOG_INFO("DRR: Dequeued packet (size "
+                      << packetSize << "B) from queue " << currentQueueIndex
+                      << ". Deficit remaining: "
+                      << m_deficits[currentQueueIndex]);
+
+          m_lastQueueServed = currentQueueIndex;
+
+          // if (tc->IsEmpty())
+          // {
+          //   NS_LOG_DEBUG("DRR: Queue "
+          //                << currentQueueIndex
+          //                << " is now empty. Resetting deficit to 0.");
+          //   m_deficits[currentQueueIndex] = 0;
+          // }
+          return packetToSend;
+        }
+        else
+        {
+
+          NS_LOG_DEBUG(
+              "DRR: Queue "
+              << currentQueueIndex << " head packet (size " << packetSize
+              << "B) > deficit (" << m_deficits[currentQueueIndex]
+              << "). No packet sent from this queue. Deficit carried over.");
+        }
       }
       else
       {
-
         NS_LOG_DEBUG(
             "DRR: Queue "
-            << currentQueueIndex << " head packet (size " << packetSize
-            << "B) > deficit (" << m_deficits[currentQueueIndex]
-            << "). No packet sent from this queue. Deficit carried over.");
+            << currentQueueIndex
+            << " could not send (e.g. became empty or non-positive deficit "
+            << m_deficits[currentQueueIndex] << " before sending).");
       }
-    }
-    else
-    {
-      NS_LOG_DEBUG(
-          "DRR: Queue "
-          << currentQueueIndex
-          << " could not send (e.g. became empty or non-positive deficit "
-          << m_deficits[currentQueueIndex] << " before sending).");
     }
   }
 
