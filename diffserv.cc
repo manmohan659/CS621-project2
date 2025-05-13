@@ -129,6 +129,7 @@ bool DiffServ::IsEmpty(void) const
 
 Ptr<Packet> DiffServ::Schedule(void)
 {
+  std::cout << "DiffServ::Schedule" << std::endl;
   NS_LOG_FUNCTION(this);
 
   for (uint32_t i = 0; i < m_classes.size(); i++)
@@ -146,6 +147,7 @@ Ptr<Packet> DiffServ::Schedule(void)
 
 uint32_t DiffServ::Classify(Ptr<Packet> p)
 {
+  std::cout << "DiffServ::Classify" << std::endl;
   NS_LOG_FUNCTION(this << p);
 
   for (uint32_t i = 0; i < m_classes.size(); i++)
@@ -207,4 +209,4 @@ Ptr<const Packet> DiffServ::Peek(void) const
   return DoPeek();
 }
 
-}
+} // namespace ns3

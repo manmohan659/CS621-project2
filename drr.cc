@@ -90,6 +90,7 @@ bool DRR::SetConfigFile(std::string filename)
   for (uint32_t i = 0; i < numQueuesFromFile; ++i)
   {
     configFileStream >> m_quantums[i];
+    std::cout << "m_quantums[i]: " << m_quantums[i] << std::endl;
     if (configFileStream.fail() || m_quantums[i] == 0)
     {
       NS_LOG_ERROR("DRR: Invalid quantum for queue "
@@ -111,6 +112,7 @@ bool DRR::SetConfigFile(std::string filename)
 
 Ptr<Packet> DRR::Schedule(void)
 {
+  std::cout << "DRR::Schedule" << std::endl;
   NS_LOG_FUNCTION(this);
   uint32_t numManagedQueues = m_quantums.size();
 
