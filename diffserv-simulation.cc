@@ -317,6 +317,7 @@ void SetupDRRValidation(NodeContainer& nodes,
   {
     NS_FATAL_ERROR("Failed to set DRR config file: " << configFile);
   }
+  std::cout << "DRR::SetConfigFile complete" << std::endl;
 
   NS_ASSERT_MSG(drr->GetNTrafficClasses() >= 3,
                 "DRR config did not create at least 3 queues for validation.");

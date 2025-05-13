@@ -39,6 +39,7 @@ void DRR::DoDispose(void)
 
 bool DRR::SetConfigFile(std::string filename)
 {
+  std::cout << "DRR::SetConfigFile" << std::endl;
   NS_LOG_FUNCTION(this << filename);
   LogComponentEnable("DRR", LOG_LEVEL_ALL);
   m_configFile = filename;
