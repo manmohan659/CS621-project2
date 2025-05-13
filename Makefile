@@ -4,7 +4,7 @@
 #   just change NS3_SUFFIX = -optimized and re-make.
 
 # ─── ns-3 locations ──────────────────────────────
-NS3_DIR      := $(HOME)/Documents/ns-allinone-3.35/ns-3.35
+NS3_DIR      := $(HOME)/Documents/ns-3-allinone/ns-3.35
 NS3_LIB_DIR  := $(NS3_DIR)/build/lib
 NS3_INC_DIR  := $(NS3_DIR)/build/include
 NS3_VERSION  := 35
