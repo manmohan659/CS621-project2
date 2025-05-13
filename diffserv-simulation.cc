@@ -145,31 +145,37 @@ void SetupSPQValidation(NodeContainer& nodes,
   Ptr<NetDevice> routerEgressDev = router->GetDevice(1);
   routerEgressDev->SetAttribute("TxQueue", PointerValue(spq));
 
-  BulkSendHelper sourceB(
-      "ns3::TcpSocketFactory",
+  OnOffHelper sourceB(
+      "ns3::UdpSocketFactory",
       InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appBPort_SPQ));
   sourceB.SetAttribute("MaxBytes", UintegerValue(0));
+  sourceB.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
+  sourceB.SetAttribute("PacketSize",
+                       UintegerValue(1024)); // Set appropriate packet size
   ApplicationContainer sourceAppB = sourceB.Install(nodes.Get(0));
   sourceAppB.Start(Seconds(0.0));
   sourceAppB.Stop(Seconds(g_simDuration));
 
-  BulkSendHelper sourceA(
-      "ns3::TcpSocketFactory",
+  OnOffHelper sourceA(
+      "ns3::UdpSocketFactory",
       InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appAPort_SPQ));
   sourceA.SetAttribute("MaxBytes", UintegerValue(0));
+  sourceA.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
+  sourceA.SetAttribute("PacketSize",
+                       UintegerValue(1024)); // Set appropriate packet size
   ApplicationContainer sourceAppA = sourceA.Install(nodes.Get(0));
   sourceAppA.Start(Seconds(12.0));
   sourceAppA.Stop(Seconds(20.0));
 
   PacketSinkHelper sinkB(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(Ipv4Address::GetAny(), g_appBPort_SPQ));
   ApplicationContainer sinkAppB = sinkB.Install(nodes.Get(2));
   sinkAppB.Start(Seconds(0.0));
   sinkAppB.Stop(Seconds(g_simDuration));
 
   PacketSinkHelper sinkA(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(Ipv4Address::GetAny(), g_appAPort_SPQ));
   ApplicationContainer sinkAppA = sinkA.Install(nodes.Get(2));
   sinkAppA.Start(Seconds(0.0));
