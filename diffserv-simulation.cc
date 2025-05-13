@@ -309,32 +309,32 @@ void SetupDRRValidation(NodeContainer& nodes,
   ApplicationContainer sourceAppsLocal, sinkAppsLocal;
 
   BulkSendHelper sourceWt3(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appAPort_DRR));
   sourceWt3.SetAttribute("MaxBytes", UintegerValue(0));
   sourceAppsLocal.Add(sourceWt3.Install(nodes.Get(0)));
   PacketSinkHelper sinkWt3(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(Ipv4Address::GetAny(), g_appAPort_DRR));
   sinkAppsLocal.Add(sinkWt3.Install(nodes.Get(2)));
 
   BulkSendHelper sourceWt2(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appBPort_DRR));
   sourceWt2.SetAttribute("MaxBytes", UintegerValue(0));
   sourceAppsLocal.Add(sourceWt2.Install(nodes.Get(0)));
   PacketSinkHelper sinkWt2(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(Ipv4Address::GetAny(), g_appBPort_DRR));
   sinkAppsLocal.Add(sinkWt2.Install(nodes.Get(2)));
 
   BulkSendHelper sourceWt1(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appCPort_DRR));
   sourceWt1.SetAttribute("MaxBytes", UintegerValue(0));
   sourceAppsLocal.Add(sourceWt1.Install(nodes.Get(0)));
   PacketSinkHelper sinkWt1(
-      "ns3::TcpSocketFactory",
+      "ns3::UdpSocketFactory",
       InetSocketAddress(Ipv4Address::GetAny(), g_appCPort_DRR));
   sinkAppsLocal.Add(sinkWt1.Install(nodes.Get(2)));
 
