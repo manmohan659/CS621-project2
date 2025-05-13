@@ -302,6 +302,7 @@ void SetupDRRValidation(NodeContainer& nodes,
                         Ptr<FlowMonitor>& flowMonitorInstance,
                         FlowMonitorHelper& localFlowHelper)
 {
+  std::cout << "SetupDRRValidation" << std::endl;
   NS_LOG_INFO("Setting up DRR validation scenario");
 
   g_appAPort_DRR = portBase;
