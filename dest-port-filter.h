@@ -31,7 +31,10 @@ public:
     c->Print(std::cout);
     Ipv4Header ip;
     if (!c->RemoveHeader(ip))
+    {
+      std::cout << "DestPortFilter::Match cant get header" << std::endl;
       return false;
+    }
     // handle tcp
     if (ip.GetProtocol() == 6)
     {
