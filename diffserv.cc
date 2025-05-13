@@ -155,11 +155,13 @@ uint32_t DiffServ::Classify(Ptr<Packet> p)
     if (m_classes[i]->Match(p))
     {
       NS_LOG_LOGIC("Packet matches traffic class " << i);
+      std::cout << "Packet matches traffic class " << i << std::endl;
       return i;
     }
   }
 
   NS_LOG_LOGIC("No matching traffic class, using default (0)");
+  std::cout << "No matching traffic class, using default (0)" << std::endl;
   return 0;
 }
 

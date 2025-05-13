@@ -150,11 +150,11 @@ Ptr<Packet> DRR::Schedule(void)
     }
 
     // test code. remove later. //todo
-    if (!tc->IsEmpty())
-    {
-      m_lastQueueServed = currentQueueIndex;
-      return tc->Dequeue();
-    }
+    // if (!tc->IsEmpty())
+    // {
+    //   m_lastQueueServed = currentQueueIndex;
+    //   return tc->Dequeue();
+    // }
 
     m_deficits[currentQueueIndex] += m_quantums[currentQueueIndex];
     NS_LOG_DEBUG("DRR: Queue " << currentQueueIndex
