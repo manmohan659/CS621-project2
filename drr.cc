@@ -8,7 +8,6 @@ namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("DRR");
-LogComponentEnable("DRR", LOG_LEVEL_ALL);
 NS_OBJECT_ENSURE_REGISTERED(DRR);
 
 TypeId DRR::GetTypeId(void)
@@ -41,6 +40,7 @@ void DRR::DoDispose(void)
 bool DRR::SetConfigFile(std::string filename)
 {
   NS_LOG_FUNCTION(this << filename);
+  LogComponentEnable("DRR", LOG_LEVEL_ALL);
   m_configFile = filename;
   std::ifstream configFileStream(filename.c_str());
   if (!configFileStream.is_open())
