@@ -673,6 +673,7 @@ int main(int argc, char* argv[])
   std::string spq_default_config_content = "2\n0\n1\n";
   std::string drr_default_config_content = "3\n300\n200\n100\n";
   Packet::EnablePrinting();
+  PacketMetadata::Enable();
   if (mode == "spq")
   {
     if (configFile.empty() && !useCiscoConfig)

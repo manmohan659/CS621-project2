@@ -28,6 +28,7 @@ public:
   bool Match(Ptr<Packet> p) override
   {
     Ptr<Packet> c = p->Copy();
+    c->Print(std::cout);
     Ipv4Header ip;
     if (!c->RemoveHeader(ip))
       return false;
