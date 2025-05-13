@@ -29,7 +29,7 @@ public:
   {
     Ptr<Packet> c = p->Copy();
     Ipv4Header ip;
-    if (!c->RemoveHeader(ip) || ip.GetProtocol() != 6)
+    if (!c->RemoveHeader(ip))
       return false;
     // handle tcp
     if (ip.GetProtocol() == 6)
@@ -46,6 +46,7 @@ public:
         return false;
       return udp.GetDestinationPort() == m_port;
     }
+    return false;
   }
 
 private:
