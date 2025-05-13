@@ -65,8 +65,8 @@ void TrafficClass::DoDispose(void)
 bool TrafficClass::Match(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
-  std::cout << "[TC] Match called for packet. Filters: " << m_filters.size()
-            << std::endl;
+  // std::cout << "[TC] Match called for packet. Filters: " << m_filters.size()
+  //           << std::endl;
 
   if (m_filters.empty())
   {
@@ -90,12 +90,12 @@ bool TrafficClass::Match(Ptr<Packet> p)
 bool TrafficClass::Enqueue(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
-  std::cout << "[TC] Attempting to enqueue. Current size: " << m_packets << "/"
-            << m_maxPackets << std::endl;
+  // std::cout << "[TC] Attempting to enqueue. Current size: " << m_packets <<
+  // "/"<< m_maxPackets << std::endl;
 
   if (m_packets >= m_maxPackets)
   {
-    std::cout << "Traffic class full: dropping" << m_packets << std::endl;
+    // std::cout << "Traffic class full: dropping" << m_packets << std::endl;
     NS_LOG_LOGIC("Queue full, dropping packet");
     return false;
   }

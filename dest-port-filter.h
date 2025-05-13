@@ -32,20 +32,20 @@ public:
     PppHeader ppp;
     if (!c->RemoveHeader(ppp))
     {
-      std::cout << "DestPortFilter::Match: PPP header missing" << std::endl;
+      // std::cout << "DestPortFilter::Match: PPP header missing" << std::endl;
       return false;
     }
 
     if (ppp.GetProtocol() != 0x0021)
     {
-      std::cout << "DestPortFilter::Match: Not an IP packet" << std::endl;
+      // std::cout << "DestPortFilter::Match: Not an IP packet" << std::endl;
       return false;
     }
 
     Ipv4Header ip;
     if (!c->RemoveHeader(ip))
     {
-      std::cout << "DestPortFilter::Match: IP header missing" << std::endl;
+      // std::cout << "DestPortFilter::Match: IP header missing" << std::endl;
       return false;
     }
 
@@ -65,7 +65,7 @@ public:
       return udp.GetDestinationPort() == m_port;
     }
 
-    std::cout << "DestPortFilter::Match: Unsupported protocol" << std::endl;
+    // std::cout << "DestPortFilter::Match: Unsupported protocol" << std::endl;
     return false;
   }
 

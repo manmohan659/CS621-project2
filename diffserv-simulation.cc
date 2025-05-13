@@ -302,7 +302,7 @@ void SetupDRRValidation(NodeContainer& nodes,
                         Ptr<FlowMonitor>& flowMonitorInstance,
                         FlowMonitorHelper& localFlowHelper)
 {
-  std::cout << "SetupDRRValidation" << std::endl;
+  // std::cout << "SetupDRRValidation" << std::endl;
   NS_LOG_INFO("Setting up DRR validation scenario");
 
   g_appAPort_DRR = portBase;
@@ -317,12 +317,12 @@ void SetupDRRValidation(NodeContainer& nodes,
   {
     NS_FATAL_ERROR("Failed to set DRR config file: " << configFile);
   }
-  std::cout << "DRR::SetConfigFile complete" << std::endl;
+  // std::cout << "DRR::SetConfigFile complete" << std::endl;
 
   NS_ASSERT_MSG(drr->GetNTrafficClasses() >= 3,
                 "DRR config did not create at least 3 queues for validation.");
 
-  std::cout << "creating traffic classes" << std::endl;
+  // std::cout << "creating traffic classes" << std::endl;
   Ptr<TrafficClass> classA = drr->GetTrafficClass(0);
   NS_ASSERT_MSG(classA, "Could not get DRR traffic class 0.");
   Ptr<Filter> filterA = CreateObject<Filter>();
@@ -340,7 +340,7 @@ void SetupDRRValidation(NodeContainer& nodes,
   Ptr<Filter> filterC = CreateObject<Filter>();
   filterC->AddFilterElement(CreateObject<DestPortFilter>(g_appCPort_DRR));
   classC->AddFilter(filterC);
-  std::cout << "created traffic classes" << std::endl;
+  // std::cout << "created traffic classes" << std::endl;
 
   Ptr<NetDevice> routerEgressDev = router->GetDevice(1);
   routerEgressDev->SetAttribute("TxQueue", PointerValue(drr));
@@ -386,7 +386,7 @@ void SetupDRRValidation(NodeContainer& nodes,
   // apps.Add(sourceAppsLocal);
   // apps.Add(sinkAppsLocal);
 
-  std::cout << "creating udp sources and sinks" << std::endl;
+  // std::cout << "creating udp sources and sinks" << std::endl;
 
   OnOffHelper sourceWt3(
       "ns3::UdpSocketFactory",

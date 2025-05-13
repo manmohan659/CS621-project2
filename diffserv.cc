@@ -47,7 +47,7 @@ void DiffServ::DoDispose(void)
 bool DiffServ::DoEnqueue(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
-  std::cout << "DiffServ::DoEnqueue" << std::endl;
+  // std::cout << "DiffServ::DoEnqueue" << std::endl;
 
   if (GetNPackets() >= GetMaxSize().GetValue())
   {
@@ -130,7 +130,7 @@ bool DiffServ::IsEmpty(void) const
 
 Ptr<Packet> DiffServ::Schedule(void)
 {
-  std::cout << "DiffServ::Schedule" << std::endl;
+  // std::cout << "DiffServ::Schedule" << std::endl;
   NS_LOG_FUNCTION(this);
 
   for (uint32_t i = 0; i < m_classes.size(); i++)
@@ -148,7 +148,7 @@ Ptr<Packet> DiffServ::Schedule(void)
 
 uint32_t DiffServ::Classify(Ptr<Packet> p)
 {
-  std::cout << "DiffServ::Classify" << std::endl;
+  // std::cout << "DiffServ::Classify" << std::endl;
   NS_LOG_FUNCTION(this << p);
 
   for (uint32_t i = 0; i < m_classes.size(); i++)
@@ -156,13 +156,13 @@ uint32_t DiffServ::Classify(Ptr<Packet> p)
     if (m_classes[i]->Match(p))
     {
       NS_LOG_LOGIC("Packet matches traffic class " << i);
-      std::cout << "Packet matches traffic class " << i << std::endl;
+      // std::cout << "Packet matches traffic class " << i << std::endl;
       return i;
     }
   }
 
   NS_LOG_LOGIC("No matching traffic class, using default (0)");
-  std::cout << "No matching traffic class, using default (0)" << std::endl;
+  // std::cout << "No matching traffic class, using default (0)" << std::endl;
   return 0;
 }
 
