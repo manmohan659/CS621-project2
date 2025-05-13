@@ -147,10 +147,10 @@ Ptr<Packet> DRR::Schedule(void)
     }
 
     // test code. remove later. //todo
-    if (!tc->Empty())
+    if (!tc->IsEmpty())
     {
       m_lastQueueServed = currentQueueIndex;
-      return tc.Dequeue();
+      return tc->Dequeue();
     }
 
     m_deficits[currentQueueIndex] += m_quantums[currentQueueIndex];
