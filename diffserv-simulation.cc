@@ -145,32 +145,54 @@ void SetupSPQValidation(NodeContainer& nodes,
   Ptr<NetDevice> routerEgressDev = router->GetDevice(1);
   routerEgressDev->SetAttribute("TxQueue", PointerValue(spq));
 
-  OnOffHelper sourceB(
-      "ns3::UdpSocketFactory",
-      InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appBPort_SPQ));
-  sourceB.SetAttribute("MaxBytes", UintegerValue(0));
-  sourceB.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
-  sourceB.SetAttribute("PacketSize", UintegerValue(1024));
-  // Configure for constant "ON" time with no "OFF" time
-  sourceB.SetAttribute(
-      "OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]"));
-  sourceB.SetAttribute(
-      "OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0.0]"));
-  ApplicationContainer sourceAppB = sourceB.Install(nodes.Get(0));
+  // OnOffHelper sourceB(
+  //     "ns3::UdpSocketFactory",
+  //     InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appBPort_SPQ));
+  // sourceB.SetAttribute("MaxBytes", UintegerValue(0));
+  // sourceB.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
+  // sourceB.SetAttribute("PacketSize", UintegerValue(1024));
+  // // Configure for constant "ON" time with no "OFF" time
+  // sourceB.SetAttribute(
+  //     "OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]"));
+  // sourceB.SetAttribute(
+  //     "OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0.0]"));
+  // ApplicationContainer sourceAppB = sourceB.Install(nodes.Get(0));
+  // sourceAppB.Start(Seconds(0.0));
+  // sourceAppB.Stop(Seconds(g_simDuration));
+
+  // OnOffHelper sourceA(
+  //     "ns3::UdpSocketFactory",
+  //     InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appAPort_SPQ));
+  // sourceA.SetAttribute("MaxBytes", UintegerValue(0));
+  // sourceA.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
+  // sourceA.SetAttribute("PacketSize", UintegerValue(1024));
+  // sourceA.SetAttribute(
+  //     "OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]"));
+  // sourceA.SetAttribute(
+  //     "OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0.0]"));
+  // ApplicationContainer sourceAppA = sourceA.Install(nodes.Get(0));
+  // sourceAppA.Start(Seconds(12.0));
+  // sourceAppA.Stop(Seconds(20.0));
+
+  UdpClientHelper clientB(sinkNodeInterface.GetAddress(0), g_appBPort_SPQ);
+  clientB.SetAttribute("MaxPackets", UintegerValue(4294967295u)); // Unlimited
+  // Calculate interval based on desired data rate and packet size
+  // For 1Mbps with 1024-byte packets: (1024*8)/(1*10^6) = 0.008192 seconds
+  // between packets
+  clientB.SetAttribute("Interval", TimeValue(Seconds(0.008192)));
+  clientB.SetAttribute("PacketSize", UintegerValue(1024));
+  ApplicationContainer sourceAppB = clientB.Install(nodes.Get(0));
   sourceAppB.Start(Seconds(0.0));
   sourceAppB.Stop(Seconds(g_simDuration));
 
-  OnOffHelper sourceA(
-      "ns3::UdpSocketFactory",
-      InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appAPort_SPQ));
-  sourceA.SetAttribute("MaxBytes", UintegerValue(0));
-  sourceA.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
-  sourceA.SetAttribute("PacketSize", UintegerValue(1024));
-  sourceA.SetAttribute(
-      "OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]"));
-  sourceA.SetAttribute(
-      "OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0.0]"));
-  ApplicationContainer sourceAppA = sourceA.Install(nodes.Get(0));
+  UdpClientHelper clientA(sinkNodeInterface.GetAddress(0), g_appAPort_SPQ);
+  clientA.SetAttribute("MaxPackets", UintegerValue(4294967295u)); // Unlimited
+  // Calculate interval based on desired data rate and packet size
+  // For 1Mbps with 1024-byte packets: (1024*8)/(1*10^6) = 0.008192 seconds
+  // between packets
+  clientA.SetAttribute("Interval", TimeValue(Seconds(0.008192)));
+  clientA.SetAttribute("PacketSize", UintegerValue(1024));
+  ApplicationContainer sourceAppA = clientA.Install(nodes.Get(0));
   sourceAppA.Start(Seconds(12.0));
   sourceAppA.Stop(Seconds(20.0));
 
