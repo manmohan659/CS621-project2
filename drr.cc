@@ -19,8 +19,7 @@ TypeId DRR::GetTypeId(void)
   return tid;
 }
 
-DRR::DRR()
-    : m_lastQueueServed(0)
+DRR::DRR() : m_lastQueueServed(0)
 {
   NS_LOG_FUNCTION(this);
 }
@@ -66,7 +65,6 @@ bool DRR::SetConfigFile(std::string filename)
                 << "). "
                    "Behavior depends on DiffServ base class's management of "
                    "TrafficClasses.");
-
   }
 
   for (uint32_t i = GetNTrafficClasses(); i < numQueuesFromFile; ++i)
@@ -91,8 +89,7 @@ bool DRR::SetConfigFile(std::string filename)
   for (uint32_t i = 0; i < numQueuesFromFile; ++i)
   {
     configFileStream >> m_quantums[i];
-    if (configFileStream.fail() ||
-        m_quantums[i] == 0)
+    if (configFileStream.fail() || m_quantums[i] == 0)
     {
       NS_LOG_ERROR("DRR: Invalid quantum for queue "
                    << i << " in DRR config file: " << filename);
@@ -150,13 +147,13 @@ Ptr<Packet> DRR::Schedule(void)
     }
 
     m_deficits[currentQueueIndex] += m_quantums[currentQueueIndex];
-    NS_LOG_DEBUG(
-        "DRR: Queue "
-        << currentQueueIndex << " gets turn. Prior Deficit: "
-        << (m_deficits[currentQueueIndex] -
-            m_quantums[currentQueueIndex])
-        << ", Quantum: " << m_quantums[currentQueueIndex]
-        << ". Total Deficit for round: " << m_deficits[currentQueueIndex]);
+    NS_LOG_DEBUG("DRR: Queue " << currentQueueIndex
+                               << " gets turn. Prior Deficit: "
+                               << (m_deficits[currentQueueIndex] -
+                                   m_quantums[currentQueueIndex])
+                               << ", Quantum: " << m_quantums[currentQueueIndex]
+                               << ". Total Deficit for round: "
+                               << m_deficits[currentQueueIndex]);
 
     if (!tc->IsEmpty() && m_deficits[currentQueueIndex] > 0)
     {
@@ -180,13 +177,13 @@ Ptr<Packet> DRR::Schedule(void)
 
         m_lastQueueServed = currentQueueIndex;
 
-        if (tc->IsEmpty())
-        {
-          NS_LOG_DEBUG("DRR: Queue "
-                       << currentQueueIndex
-                       << " is now empty. Resetting deficit to 0.");
-          m_deficits[currentQueueIndex] = 0;
-        }
+        // if (tc->IsEmpty())
+        // {
+        //   NS_LOG_DEBUG("DRR: Queue "
+        //                << currentQueueIndex
+        //                << " is now empty. Resetting deficit to 0.");
+        //   m_deficits[currentQueueIndex] = 0;
+        // }
         return packetToSend;
       }
       else
@@ -214,4 +211,4 @@ Ptr<Packet> DRR::Schedule(void)
   return nullptr;
 }
 
-}
+} // namespace ns3
