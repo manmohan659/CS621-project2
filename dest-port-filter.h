@@ -28,14 +28,27 @@ public:
   bool Match(Ptr<Packet> p) override
   {
     Ptr<Packet> c = p->Copy();
-    c->Print(std::cout);
+
+    PppHeader ppp;
+    if (!c->RemoveHeader(ppp))
+    {
+      std::cout << "DestPortFilter::Match: PPP header missing" << std::endl;
+      return false;
+    }
+
+    if (ppp.GetProtocol() != PppHeader::IP)
+    {
+      std::cout << "DestPortFilter::Match: Not an IP packet" << std::endl;
+      return false;
+    }
+
     Ipv4Header ip;
     if (!c->RemoveHeader(ip))
     {
-      std::cout << "DestPortFilter::Match cant get header" << std::endl;
+      std::cout << "DestPortFilter::Match: IP header missing" << std::endl;
       return false;
     }
-    // handle tcp
+
     if (ip.GetProtocol() == 6)
     {
       TcpHeader tcp;
@@ -43,6 +56,7 @@ public:
         return false;
       return tcp.GetDestinationPort() == m_port;
     }
+
     if (ip.GetProtocol() == 17)
     {
       UdpHeader udp;
@@ -50,7 +64,8 @@ public:
         return false;
       return udp.GetDestinationPort() == m_port;
     }
-    std::cout << "DestPortFilter::Match not matching" << std::endl;
+
+    std::cout << "DestPortFilter::Match: Unsupported protocol" << std::endl;
     return false;
   }
 
