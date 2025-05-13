@@ -322,6 +322,7 @@ void SetupDRRValidation(NodeContainer& nodes,
   NS_ASSERT_MSG(drr->GetNTrafficClasses() >= 3,
                 "DRR config did not create at least 3 queues for validation.");
 
+  std::cout << "creating traffic classes" << std::endl;
   Ptr<TrafficClass> classA = drr->GetTrafficClass(0);
   NS_ASSERT_MSG(classA, "Could not get DRR traffic class 0.");
   Ptr<Filter> filterA = CreateObject<Filter>();
@@ -339,12 +340,14 @@ void SetupDRRValidation(NodeContainer& nodes,
   Ptr<Filter> filterC = CreateObject<Filter>();
   filterC->AddFilterElement(CreateObject<DestPortFilter>(g_appCPort_DRR));
   classC->AddFilter(filterC);
+  std::cout << "created traffic classes" << std::endl;
 
   Ptr<NetDevice> routerEgressDev = router->GetDevice(1);
   routerEgressDev->SetAttribute("TxQueue", PointerValue(drr));
 
   ApplicationContainer sourceAppsLocal, sinkAppsLocal;
 
+  std::cout << "creating udp sources and sinks" << std::endl;
   UdpClientHelper sourceWt3(sinkNodeInterface.GetAddress(0), g_appAPort_DRR);
   sourceWt3.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited packets
   sourceWt3.SetAttribute("Interval",
