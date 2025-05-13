@@ -91,7 +91,7 @@ bool TrafficClass::Enqueue(Ptr<Packet> p)
 
   if (m_packets >= m_maxPackets)
   {
-    std::cout << "Traffic class full: " << m_packets << std::endl;
+    std::cout << "Traffic class full: dropping" << m_packets << std::endl;
     NS_LOG_LOGIC("Queue full, dropping packet");
     return false;
   }
