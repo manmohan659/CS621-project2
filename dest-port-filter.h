@@ -36,7 +36,7 @@ public:
       return false;
     }
 
-    if (ppp.GetProtocol() != PppHeader::IP)
+    if (ppp.GetProtocol() != 0x0021)
     {
       std::cout << "DestPortFilter::Match: Not an IP packet" << std::endl;
       return false;
