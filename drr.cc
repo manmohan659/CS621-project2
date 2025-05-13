@@ -146,6 +146,13 @@ Ptr<Packet> DRR::Schedule(void)
       continue;
     }
 
+    // test code. remove later. //todo
+    if (!tc->Empty())
+    {
+      m_lastQueueServed = currentQueueIndex;
+      return tc.Dequeue();
+    }
+
     m_deficits[currentQueueIndex] += m_quantums[currentQueueIndex];
     NS_LOG_DEBUG("DRR: Queue " << currentQueueIndex
                                << " gets turn. Prior Deficit: "
