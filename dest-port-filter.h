@@ -31,15 +31,26 @@ public:
     Ipv4Header ip;
     if (!c->RemoveHeader(ip) || ip.GetProtocol() != 6)
       return false;
-    TcpHeader tcp;
-    if (!c->PeekHeader(tcp))
-      return false;
-    return tcp.GetDestinationPort() == m_port;
+    // handle tcp
+    if (ip.GetProtocol() == 6)
+    {
+      TcpHeader tcp;
+      if (!c->PeekHeader(tcp))
+        return false;
+      return tcp.GetDestinationPort() == m_port;
+    }
+    if (ip.GetProtocol() == 17)
+    {
+      UdpHeader udp;
+      if (!c->PeekHeader(udp))
+        return false;
+      return udp.GetDestinationPort() == m_port;
+    }
   }
 
 private:
   uint16_t m_port;
 };
 
-}
+} // namespace ns3
 #endif
