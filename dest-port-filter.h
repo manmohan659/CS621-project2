@@ -47,6 +47,7 @@ public:
         return false;
       return udp.GetDestinationPort() == m_port;
     }
+    std::cout << "DestPortFilter::Match not matching" << std::endl;
     return false;
   }
 
