@@ -37,8 +37,8 @@ TypeId TrafficClass::GetTypeId(void)
 }
 
 TrafficClass::TrafficClass()
-    : m_filters(), m_mode(0),
-      m_packets(0), m_maxPackets(100), m_weight(1.0), m_priorityLevel(0)
+    : m_filters(), m_mode(0), m_packets(0), m_maxPackets(10000), m_weight(1.0),
+      m_priorityLevel(0)
 {
   NS_LOG_FUNCTION(this);
 }
@@ -187,4 +187,4 @@ uint32_t TrafficClass::GetNPackets(void) const
   return m_packets;
 }
 
-}
+} // namespace ns3
