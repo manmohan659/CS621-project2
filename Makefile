@@ -25,6 +25,9 @@ NS3_LIBS :=  -lns3.$(NS3_VERSION)-core$(NS3_SUFFIX) \
              -lns3.$(NS3_VERSION)-flow-monitor$(NS3_SUFFIX) \
              -lns3.$(NS3_VERSION)-stats$(NS3_SUFFIX)          # ← NEW
 
+# Debug variables
+DEBUG_LOG := "DiffServ=level_all|prefix_time:SPQ=level_all|prefix_time:DRR=level_all|prefix_time:TrafficClass=level_all|prefix_time:Filter=level_all|prefix_time"
+
 # ─── project sources ─────────────────────────────
 SRCS  := diffserv.cc traffic-class.cc filter.cc filter-element.cc \
          source-ip-address.cc dest-ip-address.cc spq.cc drr.cc \
@@ -51,3 +54,29 @@ run-spq:         $(EXEC) ; ./$(EXEC) --mode=spq        --config=spq.config
 run-spq-cisco:   $(EXEC) ; ./$(EXEC) --mode=spq        --config=cisco-spq.config --cisco=true
 run-drr:         $(EXEC) ; ./$(EXEC) --mode=drr        --config=drr.config
 run-all: run-spq run-spq-cisco run-drr
+
+# Run with GDB
+debug-spq: $(EXEC)
+	NS_LOG=$(DEBUG_LOG) gdb --args ./$(EXEC) --mode=spq --config=spq.config
+
+debug-spq-cisco: $(EXEC)
+	NS_LOG=$(DEBUG_LOG) gdb --args ./$(EXEC) --mode=spq --config=cisco-spq.config --cisco=true
+
+debug-drr: $(EXEC)
+	NS_LOG=$(DEBUG_LOG) gdb --args ./$(EXEC) --mode=drr --config=drr.config
+
+# Run with logs but no debugger
+log-spq: $(EXEC)
+	NS_LOG=$(DEBUG_LOG) ./$(EXEC) --mode=spq --config=spq.config 2>&1 | tee spq-debug.log
+
+log-spq-cisco: $(EXEC)
+	NS_LOG=$(DEBUG_LOG) ./$(EXEC) --mode=spq --config=cisco-spq.config --cisco=true 2>&1 | tee spq-cisco-debug.log
+
+log-drr: $(EXEC)
+	NS_LOG=$(DEBUG_LOG) ./$(EXEC) --mode=drr --config=drr.config 2>&1 | tee drr-debug.log
+
+# Debug all configurations
+debug-all: debug-spq debug-spq-cisco debug-drr
+
+# Log all configurations
+log-all: log-spq log-spq-cisco log-drr

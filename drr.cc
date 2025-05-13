@@ -8,6 +8,7 @@ namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("DRR");
+LogComponentEnable("DRR", LOG_LEVEL_ALL);
 NS_OBJECT_ENSURE_REGISTERED(DRR);
 
 TypeId DRR::GetTypeId(void)
