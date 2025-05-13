@@ -347,32 +347,81 @@ void SetupDRRValidation(NodeContainer& nodes,
 
   ApplicationContainer sourceAppsLocal, sinkAppsLocal;
 
+  // std::cout << "creating udp sources and sinks" << std::endl;
+  // UdpClientHelper sourceWt3(sinkNodeInterface.GetAddress(0), g_appAPort_DRR);
+  // sourceWt3.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited
+  // packets sourceWt3.SetAttribute("Interval",
+  //                        TimeValue(Seconds(0.01)));          // Packet
+  //                        interval
+  // sourceWt3.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per
+  // packet sourceAppsLocal.Add(sourceWt3.Install(nodes.Get(0)));
+  // UdpServerHelper sinkWt3(g_appAPort_DRR);
+  // sinkAppsLocal.Add(sinkWt3.Install(nodes.Get(2)));
+
+  // UdpClientHelper sourceWt2(sinkNodeInterface.GetAddress(0), g_appBPort_DRR);
+  // sourceWt2.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited
+  // packets sourceWt2.SetAttribute("Interval",
+  //                        TimeValue(Seconds(0.01)));          // Packet
+  //                        interval
+  // sourceWt2.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per
+  // packet sourceAppsLocal.Add(sourceWt2.Install(nodes.Get(0)));
+  // UdpServerHelper sinkWt2(g_appBPort_DRR);
+  // sinkAppsLocal.Add(sinkWt2.Install(nodes.Get(2)));
+
+  // UdpClientHelper sourceWt1(sinkNodeInterface.GetAddress(0), g_appCPort_DRR);
+  // sourceWt1.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited
+  // packets sourceWt1.SetAttribute("Interval",
+  //                        TimeValue(Seconds(0.01)));          // Packet
+  //                        interval
+  // sourceWt1.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per
+  // packet sourceAppsLocal.Add(sourceWt1.Install(nodes.Get(0)));
+  // UdpServerHelper sinkWt1(g_appCPort_DRR);
+  // sinkAppsLocal.Add(sinkWt1.Install(nodes.Get(2)));
+
+  // sourceAppsLocal.Start(Seconds(0.0));
+  // sourceAppsLocal.Stop(Seconds(g_simDuration));
+  // sinkAppsLocal.Start(Seconds(0.0));
+  // sinkAppsLocal.Stop(Seconds(g_simDuration));
+
+  // apps.Add(sourceAppsLocal);
+  // apps.Add(sinkAppsLocal);
+
   std::cout << "creating udp sources and sinks" << std::endl;
-  UdpClientHelper sourceWt3(sinkNodeInterface.GetAddress(0), g_appAPort_DRR);
-  sourceWt3.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited packets
-  sourceWt3.SetAttribute("Interval",
-                         TimeValue(Seconds(0.01)));          // Packet interval
-  sourceWt3.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per packet
+
+  OnOffHelper sourceWt3(
+      "ns3::UdpSocketFactory",
+      InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appAPort_DRR));
+  sourceWt3.SetAttribute("DataRate", StringValue("4Mbps")); // Adjust as needed
+  sourceWt3.SetAttribute("PacketSize", UintegerValue(1000));
   sourceAppsLocal.Add(sourceWt3.Install(nodes.Get(0)));
-  UdpServerHelper sinkWt3(g_appAPort_DRR);
+
+  PacketSinkHelper sinkWt3(
+      "ns3::UdpSocketFactory",
+      InetSocketAddress(Ipv4Address::GetAny(), g_appAPort_DRR));
   sinkAppsLocal.Add(sinkWt3.Install(nodes.Get(2)));
 
-  UdpClientHelper sourceWt2(sinkNodeInterface.GetAddress(0), g_appBPort_DRR);
-  sourceWt2.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited packets
-  sourceWt2.SetAttribute("Interval",
-                         TimeValue(Seconds(0.01)));          // Packet interval
-  sourceWt2.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per packet
+  OnOffHelper sourceWt2(
+      "ns3::UdpSocketFactory",
+      InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appBPort_DRR));
+  sourceWt2.SetAttribute("DataRate", StringValue("4Mbps"));
+  sourceWt2.SetAttribute("PacketSize", UintegerValue(1000));
   sourceAppsLocal.Add(sourceWt2.Install(nodes.Get(0)));
-  UdpServerHelper sinkWt2(g_appBPort_DRR);
+
+  PacketSinkHelper sinkWt2(
+      "ns3::UdpSocketFactory",
+      InetSocketAddress(Ipv4Address::GetAny(), g_appBPort_DRR));
   sinkAppsLocal.Add(sinkWt2.Install(nodes.Get(2)));
 
-  UdpClientHelper sourceWt1(sinkNodeInterface.GetAddress(0), g_appCPort_DRR);
-  sourceWt1.SetAttribute("MaxPackets", UintegerValue(0)); // Unlimited packets
-  sourceWt1.SetAttribute("Interval",
-                         TimeValue(Seconds(0.01)));          // Packet interval
-  sourceWt1.SetAttribute("PacketSize", UintegerValue(1000)); // Bytes per packet
+  OnOffHelper sourceWt1(
+      "ns3::UdpSocketFactory",
+      InetSocketAddress(sinkNodeInterface.GetAddress(0), g_appCPort_DRR));
+  sourceWt1.SetAttribute("DataRate", StringValue("4Mbps"));
+  sourceWt1.SetAttribute("PacketSize", UintegerValue(1000));
   sourceAppsLocal.Add(sourceWt1.Install(nodes.Get(0)));
-  UdpServerHelper sinkWt1(g_appCPort_DRR);
+
+  PacketSinkHelper sinkWt1(
+      "ns3::UdpSocketFactory",
+      InetSocketAddress(Ipv4Address::GetAny(), g_appCPort_DRR));
   sinkAppsLocal.Add(sinkWt1.Install(nodes.Get(2)));
 
   sourceAppsLocal.Start(Seconds(0.0));
