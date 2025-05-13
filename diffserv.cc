@@ -47,6 +47,7 @@ void DiffServ::DoDispose(void)
 bool DiffServ::DoEnqueue(Ptr<Packet> p)
 {
   NS_LOG_FUNCTION(this << p);
+  std::cout << "DiffServ::DoEnqueue" << std::endl;
 
   if (GetNPackets() >= GetMaxSize().GetValue())
   {
